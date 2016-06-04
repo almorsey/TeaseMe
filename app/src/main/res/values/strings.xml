@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name" translatable="false">TeaseMe</string>
+    <string name="none">None</string>
+    <string name="image">Image</string>
+    <string name="start">Start</string>
+    <string name="pause_timer">Pause Timer</string>
+    <string name="resume_timer">Resume Timer</string>
+    <string name="skip_timer">Skip Timer</string>
+    <string name="save">Save</string>
+    <string name="unsave">Unsave</string>
+    <string name="prev_page">Prev Page</string>
+    <string name="settings">Settings</string>
+    <string name="_new">New</string>
+</resources>
