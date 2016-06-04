@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -63,30 +64,30 @@ import javax.xml.transform.stream.StreamResult;
 public class MainActivity extends Activity implements View.OnClickListener {
 
 	/**
-	 TEASES_DIR = directory where all teases are located
-	*/
+	 * TEASES_DIR = directory where all teases are located
+	 */
 	private static final String TAG = "almorsey";
-	private static String TEASES_DIR;
+	public static String TEASES_DIR;
 	
 	/**
-	 doc = xml document of tease
-	 data = xml document including saves, setttings and misc info
-	 mediaDir = path where media of tease is
-	 timerTarget
-	 delayStyle = [normal(shows time left), secret(shows a timer but not the time), hidden(doesn't show a timer)]
-	 currentPageId
-	 timers
-	 set
-	 prevPages
-	 multiplePagesPattern
-	 autoSetPageWhenSeen
-	 fromPrevPageButton = for not adding page to @prevPages so it doesn't loop
-	 delay
-	 delayDeception
-	 delayStartTime
-	 updateTimer
-	 dataFile = File object of @data xml file	
-	*/
+	 * doc = xml document of tease
+	 * data = xml document including saves, setttings and misc info
+	 * mediaDir = path where media of tease is
+	 * timerTarget
+	 * delayStyle = [normal(shows time left), secret(shows a timer but not the time), hidden(doesn't show a timer)]
+	 * currentPageId
+	 * timers
+	 * set
+	 * prevPages
+	 * multiplePagesPattern
+	 * autoSetPageWhenSeen
+	 * fromPrevPageButton = for not adding page to @prevPages so it doesn't loop
+	 * delay
+	 * delayDeception
+	 * delayStartTime
+	 * updateTimer
+	 * dataFile = File object of @data xml file
+	 */
 	private Document doc, data;
 	private String mediaDir, timerTarget, delayStyle, currentPageId;
 	private Map<String, Timer> timers;
@@ -101,31 +102,31 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private File dataFile;
 
 	/**
-	timerTextView = shows timer in the top right
-	imageView = shows images on the left
-	editText = shows text on the right
-	buttonsLayout
-	cheats = group of cheat buttons in the top left
-	homeButtons = group of buttons on home page on the right
-	audioPlayer
-	editTextScrollView
-	newDocButton =
-	pauseTimerButton
-	settingsButton
-	skipTimerButton
-	pageIdViewButton
-	teaseButton
-	saveButton
-	removeSaveButton
-	prevPageButton
-	*/
+	 * timerTextView = shows timer in the top right
+	 * imageView = shows images on the left
+	 * editText = shows text on the right
+	 * buttonsLayout
+	 * cheats = group of cheat buttons in the top left
+	 * homeButtons = group of buttons on home page on the right
+	 * audioPlayer
+	 * editTextScrollView
+	 * newDocButton =
+	 * pauseTimerButton
+	 * settingsButton
+	 * skipTimerButton
+	 * pageIdViewButton
+	 * teaseButton
+	 * saveButton
+	 * removeSaveButton
+	 * prevPageButton
+	 */
 	private TextView timerTextView;
 	private ImageView imageView;
 	private WebView editText;
 	private LinearLayout buttonsLayout, cheats, homeButtons;
 	private MediaPlayer audioPlayer;
 	private ScrollView editTextScrollView;
-	private Button newDocButton, pauseTimerButton, settingsButton, skipTimerButton, pageIdViewButton, teaseButton, saveButton, removeSaveButton, prevPageButton;
+	private Button newDocButton, pauseTimerButton, settingsButton, skipTimerButton, pageIdViewButton, teaseButton, saveButton, removeSaveButton, prevPageButton, downloadButton;
 	private LinearLayout.LayoutParams noButtonsLayoutParams, yesButtonsLayoutParams;
 	private VideoView videoView;
 
@@ -179,6 +180,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		saveButton = (Button) findViewById(R.id.saveButton);
 		removeSaveButton = (Button) findViewById(R.id.removeSaveButton);
 		prevPageButton = (Button) findViewById(R.id.prevPageButton);
+		downloadButton = (Button) findViewById(R.id.button);
 		buttonsLayout = (LinearLayout) findViewById(R.id.buttonsLayout);
 		timerTextView = (TextView) findViewById(R.id.timerTextView);
 		editTextScrollView = (ScrollView) findViewById(R.id.editTextScrollView);
@@ -239,6 +241,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		removeSaveButton.setOnClickListener(this);
 		prevPageButton.setOnClickListener(this);
 		settingsButton.setOnClickListener(this);
+		downloadButton.setOnClickListener(this);
 		videoView.setOnClickListener(this);
 		videoView.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
@@ -289,8 +292,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 					Node ifNotSet = attrs.getNamedItem("if-not-set");
 					if (ifSet != null) for (String ifSetPart : ifSet.getNodeValue().split("\\|"))
 						if (!set.contains(ifSetPart)) continue allChildren;
-					if (ifNotSet != null) for (String ifNotSetPart : ifNotSet.getNodeValue().split("\\|"))
-						if (set.contains(ifNotSetPart)) continue allChildren;
+					if (ifNotSet != null)
+						for (String ifNotSetPart : ifNotSet.getNodeValue().split("\\|"))
+							if (set.contains(ifNotSetPart)) continue allChildren;
 				}
 				if (child.getNodeName().equals("Image")) {
 					if (imageView.getVisibility() == ImageView.GONE) {
@@ -328,10 +332,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 					final String target = processTarget(attrs.getNamedItem("target").getNodeValue());
 					button.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View v) {
-							if (childSets != null) for (String childSet : childSets.getNodeValue().split("\\|"))
-								set.add(childSet);
-							if (childUnsets != null) for (String childUnset : childUnsets.getNodeValue().split("\\|"))
-								set.remove(childUnset);
+							if (childSets != null)
+								for (String childSet : childSets.getNodeValue().split("\\|"))
+									set.add(childSet);
+							if (childUnsets != null)
+								for (String childUnset : childUnsets.getNodeValue().split("\\|"))
+									set.remove(childUnset);
 							setPage(target);
 						}
 					});
@@ -345,7 +351,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 					Node childUnsets = attrs.getNamedItem("unset");
 					Node startsWithNode = attrs.getNamedItem("start-with");
 					delay = processDelay(attrs.getNamedItem("seconds").getNodeValue()) * 1000;
-					if (startsWithNode != null) delayDeception = Integer.parseInt(startsWithNode.getNodeValue()) * 1000 - delay;
+					if (startsWithNode != null)
+						delayDeception = Integer.parseInt(startsWithNode.getNodeValue()) * 1000 - delay;
 					else delayDeception = 0;
 					delayStartTime = System.currentTimeMillis();
 					final String target = processTarget(attrs.getNamedItem("target").getNodeValue());
@@ -354,10 +361,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 					if (styleNode != null) delayStyle = styleNode.getNodeValue().trim();
 					else delayStyle = "normal";
 					timerTextView.setVisibility(TextView.VISIBLE);
-					if (childSets != null) for (String childSet : childSets.getNodeValue().split("\\|"))
-						set.add(childSet);
-					if (childUnsets != null) for (String childUnset : childUnsets.getNodeValue().split("\\|"))
-						set.remove(childUnset);
+					if (childSets != null)
+						for (String childSet : childSets.getNodeValue().split("\\|"))
+							set.add(childSet);
+					if (childUnsets != null)
+						for (String childUnset : childUnsets.getNodeValue().split("\\|"))
+							set.remove(childUnset);
 					Timer wait = new Timer();
 					wait.schedule(new TimerTask() {
 						public void run() {
@@ -402,7 +411,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				}
 			}
 			Log.d(TAG, output + "]");
-			if (buttonsLayout.getChildCount() == 0) editTextScrollView.setLayoutParams(noButtonsLayoutParams);
+			if (buttonsLayout.getChildCount() == 0)
+				editTextScrollView.setLayoutParams(noButtonsLayoutParams);
 			else editTextScrollView.setLayoutParams(yesButtonsLayoutParams);
 		} catch (NullPointerException e) {
 			Log.e(TAG, "setPage: ", e);
@@ -550,7 +560,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 											Node node;
 											if ((node = data.getElementById(md5(teaseButton.getText().toString()))) != null)
 												data.getElementsByTagName("Saves").item(0).removeChild(node);
-											if (teaseButton.getText().equals(fileButton.getText())) teaseButton.setText(R.string.none);
+											if (teaseButton.getText().equals(fileButton.getText()))
+												teaseButton.setText(R.string.none);
 											textViewsLayout.removeView(fileButton);
 										} else dialog.dismiss();
 									}
@@ -657,7 +668,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		} else if (v.equals(saveButton)) {
 			Element saves = (Element) data.getElementsByTagName("Saves").item(0);
 			Node node;
-			if ((node = data.getElementById(md5(teaseButton.getText().toString()))) != null) saves.removeChild(node);
+			if ((node = data.getElementById(md5(teaseButton.getText().toString()))) != null)
+				saves.removeChild(node);
 			Element save = data.createElement("Save");
 			save.setAttribute("id", md5(teaseButton.getText().toString()));
 			Element tease = data.createElement("Tease");
@@ -674,12 +686,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			save.appendChild(prevPagesE);
 			saves.appendChild(save);
 			saveDocument(data, dataFile);
-			if (saveButton.getTag().equals("manual")) Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+			if (saveButton.getTag().equals("manual"))
+				Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
 			saveButton.setTag("manual");
 		} else if (v.equals(removeSaveButton)) {
 			Element saves = (Element) data.getElementsByTagName("Saves").item(0);
 			Node node;
-			if ((node = data.getElementById(md5(teaseButton.getText().toString()))) != null) saves.removeChild(node);
+			if ((node = data.getElementById(md5(teaseButton.getText().toString()))) != null)
+				saves.removeChild(node);
 			Toast.makeText(this, "Removed Save", Toast.LENGTH_SHORT).show();
 		} else if (v.equals(prevPageButton)) {
 			Page prevPage = prevPages.remove(prevPages.size() - 1);
@@ -687,6 +701,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			set = prevPage.getSets();
 			fromPrevPageButton = true;
 			setPage(prevPage.getId());
+		} else if (v.equals(downloadButton)) {
+			Intent intent = new Intent(this, DownloadActivity.class);
+			startActivity(intent);
 		}
 	}
 
@@ -857,7 +874,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 						updateTimer.purge();
 					}
 					if (delayStyle.equals("secret")) {
-						if (timerTextView.getCurrentTextColor() == Color.WHITE) timerTextView.setTextColor(Color.RED);
+						if (timerTextView.getCurrentTextColor() == Color.WHITE)
+							timerTextView.setTextColor(Color.RED);
 						else timerTextView.setTextColor(Color.WHITE);
 					} else if (delayStyle.equals("normal")) {
 						timerTextView.setText(toTime(timeLeft + delayDeception));

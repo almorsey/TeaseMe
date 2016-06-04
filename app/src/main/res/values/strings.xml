@@ -10,5 +10,10 @@
     <string name="unsave">Unsave</string>
     <string name="prev_page">Prev Page</string>
     <string name="settings">Settings</string>
+    <string name="download">Download</string>
     <string name="_new">New</string>
+    <string name="url" translatable="false">URL</string>
+    <string name="save_resources">Save Resources</string>
+    <string name="inbalid_url">Invalid URL</string>
+    <string name="tease_404">Tease not found!</string>
 </resources>
