@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.jsoup.Jsoup;
@@ -34,7 +35,6 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,6 +56,7 @@ public class DownloadActivity extends AppCompatActivity {
 	private EditText urlEditText;
 	private CheckBox saveResourcesCheckBox;
 	private Button button;
+	private ScrollView outputScrollView;
 	private TextView outputTextView;
 	private Pattern buttonsPattern = Pattern.compile("target\\d+:(.+?)#,cap\\d+:\"(.+?)\"");
 
@@ -73,6 +74,7 @@ public class DownloadActivity extends AppCompatActivity {
 		saveResourcesCheckBox = (CheckBox) findViewById(R.id.saveResourcesCheckBox);
 		button = (Button) findViewById(R.id.button);
 		outputTextView = (TextView) findViewById(R.id.outputTextView);
+		outputScrollView = (ScrollView) findViewById(R.id.outputScrollView);
 
 		urlEditText.setOnKeyListener(new View.OnKeyListener() {
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -87,6 +89,7 @@ public class DownloadActivity extends AppCompatActivity {
 
 	private void newline(String string) {
 		outputTextView.setText(outputTextView.getText() + "\n" + string);
+		outputScrollView.fullScroll(ScrollView.FOCUS_DOWN);
 	}
 
 	public void startDownload(View v) {
@@ -100,26 +103,12 @@ public class DownloadActivity extends AppCompatActivity {
 				cancelled = false;
 				outputTextView.setText(R.string.getting_source);
 				if (matcher.group(1).equals("flash")) {
-					docsGet = new ASyncGet();
+					docsGet = new ASyncGet(matcher);
 					docsGet.execute(
 							new String[]{"https://milovana.com/webteases/getscript.php?id=" + matcher.group(2), ASyncGet.BUFFERED_READER_METHOD},
 							new String[]{matcher.group(0), ASyncGet.JSOUP_METHOD});
-					try {
-						Object[] val = (Object[]) docsGet.get();
-						String scriptDoc = (String) val[0];
-						org.jsoup.nodes.Document teaseDoc = (org.jsoup.nodes.Document) val[1];
-						makeFlashXML(matcher, scriptDoc, teaseDoc);
-					} catch (ClassCastException e) {
-						button.callOnClick();
-					} catch (CancellationException e) {
-						newline("Cancelled");
-					} catch (InterruptedException | ExecutionException e) {
-						Log.e(TAG, "startDownload: ", e);
-					}
-				} else if (matcher.group(1).equals("tease")) {
-					ArrayList<org.jsoup.nodes.Document> docs = new ArrayList<>();
-					getNormalTeaseDocs(docs, matcher.group(0), 1);
-				}
+				} else if (matcher.group(1).equals("tease"))
+					docsGet = new ASyncGet(new ArrayList<org.jsoup.nodes.Document>(), matcher.group(0), 1);
 			} else {
 				outputTextView.setText(R.string.inbalid_url);
 			}
@@ -130,24 +119,6 @@ public class DownloadActivity extends AppCompatActivity {
 				rd.cancel(true);
 			}
 			button.setText(R.string.download);
-		}
-	}
-
-	private void getNormalTeaseDocs(ArrayList<org.jsoup.nodes.Document> docs, String url, int pageNum) {
-		docsGet = new ASyncGet();
-		docsGet.execute(new String[]{url + "&p=" + pageNum, ASyncGet.JSOUP_METHOD});
-		try {
-			Object[] val = (Object[]) docsGet.get();
-			org.jsoup.nodes.Document doc = (org.jsoup.nodes.Document) val[0];
-			docs.add(doc);
-			if (doc.getElementById("continue") != null) getNormalTeaseDocs(docs, url, pageNum + 1);
-			else makeTeaseXML(docs);
-		} catch (ClassCastException e) {
-			button.callOnClick();
-		} catch (CancellationException e) {
-			newline("Cancelled");
-		} catch (InterruptedException | ExecutionException e) {
-			Log.e(TAG, "getNormalTeaseDocs: ", e);
 		}
 	}
 
@@ -291,7 +262,6 @@ public class DownloadActivity extends AppCompatActivity {
 		return elements;
 	}
 
-
 	private String evalTarget(String target) {
 		Pattern p = Pattern.compile("range\\(from:(\\d+),to:(\\d+),:'(.+?)'\\)");
 		Matcher m = p.matcher(target);
@@ -417,7 +387,6 @@ public class DownloadActivity extends AppCompatActivity {
 		return start + 1;
 	}
 
-
 	private void makeFlashXML(Matcher matcher, String scriptDoc, org.jsoup.nodes.Document teaseDoc) {
 		if (scriptDoc == null) return;
 		if (scriptDoc.isEmpty()) outputTextView.setText(R.string.tease_404);
@@ -499,6 +468,22 @@ public class DownloadActivity extends AppCompatActivity {
 
 		static final String JSOUP_METHOD = "JSOUP", BUFFERED_READER_METHOD = "BFRD";
 		Pattern normalTeasePattern = Pattern.compile("id=\\d+&p=(\\d+)");
+		ArrayList<org.jsoup.nodes.Document> docs;
+		String url;
+		int pageNum;
+		Matcher matcher;
+
+		ASyncGet(Matcher matcher) {
+			docs = null;
+			this.matcher = matcher;
+		}
+
+		ASyncGet(ArrayList<org.jsoup.nodes.Document> docs, String url, int pageNum) {
+			this.docs = docs;
+			this.url = url;
+			this.pageNum = pageNum;
+			execute(new String[]{url + "&p=" + pageNum, ASyncGet.JSOUP_METHOD});
+		}
 
 		private String getUrlSource(String url) {
 			BufferedReader in = null;
@@ -573,6 +558,28 @@ public class DownloadActivity extends AppCompatActivity {
 				} else newline(val.toString());
 			} catch (CancellationException e) {
 				Log.d(TAG, "CancellationException");
+			}
+			if (docs != null) try {
+				Object[] value = (Object[]) val;
+				org.jsoup.nodes.Document doc = (org.jsoup.nodes.Document) value[0];
+				docs.add(doc);
+				if (doc.getElementById("continue") != null) {
+					docsGet = new ASyncGet(docs, url, pageNum + 1);
+				} else makeTeaseXML(docs);
+			} catch (ClassCastException e) {
+				button.callOnClick();
+			} catch (CancellationException e) {
+				newline("Cancelled");
+			}
+			else try {
+				Object[] value = (Object[]) val;
+				String scriptDoc = (String) value[0];
+				org.jsoup.nodes.Document teaseDoc = (org.jsoup.nodes.Document) value[1];
+				makeFlashXML(matcher, scriptDoc, teaseDoc);
+			} catch (ClassCastException e) {
+				button.callOnClick();
+			} catch (CancellationException e) {
+				newline("Cancelled");
 			}
 		}
 	}
