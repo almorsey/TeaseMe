@@ -16,4 +16,7 @@
     <string name="save_resources">Save Resources</string>
     <string name="inbalid_url">Invalid URL</string>
     <string name="tease_404">Tease not found!</string>
+    <string name="unsavable">Could not save file</string>
+    <string name="cancel">Cancel</string>
+    <string name="getting_source">Getting source...</string>
 </resources>

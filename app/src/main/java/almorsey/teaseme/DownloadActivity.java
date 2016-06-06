@@ -64,7 +64,7 @@ public class DownloadActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_download);
 
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		toolbar.setTitle("Download");
+		toolbar.setTitle(R.string.download);
 		setSupportActionBar(toolbar);
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
@@ -96,9 +96,9 @@ public class DownloadActivity extends AppCompatActivity {
 			Pattern pattern = Pattern.compile("^https?://milovana\\.com/webteases/show(flash|tease)\\.php\\?id=(\\d+)$");
 			Matcher matcher = pattern.matcher(url);
 			if (matcher.find()) {
-				button.setText("Cancel");
+				button.setText(R.string.cancel);
 				cancelled = false;
-				outputTextView.setText("Getting source...");
+				outputTextView.setText(R.string.getting_source);
 				if (matcher.group(1).equals("flash")) {
 					docsGet = new ASyncGet();
 					docsGet.execute(
@@ -468,7 +468,7 @@ public class DownloadActivity extends AppCompatActivity {
 	}
 
 	private String parseLocation(String x) {
-		return x.replaceAll("[\\\\\\/\\*?<>\"#]", "");
+		return x.replaceAll("[\\\\/\\*?<>\"#]", "");
 	}
 
 	private void done() {
@@ -482,7 +482,7 @@ public class DownloadActivity extends AppCompatActivity {
 			newline("Done");
 		} catch (TransformerException | TransformerFactoryConfigurationError e) {
 			e.printStackTrace();
-			outputTextView.setText("Couldn't save file");
+			outputTextView.setText(R.string.unsavable);
 			newline(e.getLocalizedMessage());
 		} catch (FileNotFoundException e) {
 			Log.e(TAG, "done: ", e);
@@ -640,6 +640,7 @@ public class DownloadActivity extends AppCompatActivity {
 						else output.write(data, 0, count);
 				}
 			} catch (IOException e) {
+				Log.e(TAG, "downloadFile: ", e);
 			} finally {
 				try {
 					if (output != null) output.close();
@@ -656,6 +657,7 @@ public class DownloadActivity extends AppCompatActivity {
 				rds.remove(this);
 				if (rds.size() == 0) done();
 			} catch (CancellationException e) {
+				Log.e(TAG, "onPostExecute: ", e);
 			}
 		}
 
