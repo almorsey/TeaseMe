@@ -18,5 +18,18 @@
     <string name="tease_404">Tease not found!</string>
     <string name="unsavable">Could not save file</string>
     <string name="cancel">Cancel</string>
-    <string name="getting_source">Getting source...</string>
+    <string name="getting_source">Getting source&#8230;</string>
+    <string name="teases_dir">Teases directory</string>
+    <string name="setting_eos">Endear on startup</string>
+    <string name="setting_hpp">Home page picture</string>
+
+    <!-- Data Elements -->
+    <string name="root">Root</string>
+    <string name="root_saves">Saves</string>
+    <string name="root_settings">Settings</string>
+    <string name="root_settings_teasesDirectory">TeasesDir</string>
+    <string name="root_settings_endearOnStartup">EndearOnStartup</string>
+    <string name="root_settings.homePagePicture">HomePagePicture</string>
+    <string name="root_misc">Misc</string>
+    <string name="root_misc_lastTease">LastTease</string>
 </resources>

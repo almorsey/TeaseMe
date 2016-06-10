@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"/>
+
+    <Button
+        android:id="@+id/teasesDirButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/toolbar"
+        android:text="@string/teases_dir"
+        android:textAllCaps="false"/>
+
+    <EditText
+        android:id="@+id/teasesDirEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/teasesDirButton"
+        android:layout_toEndOf="@+id/teasesDirButton"
+        android:ems="10"
+        android:inputType="textPersonName"/>
+
+    <CheckBox
+        android:id="@+id/eosCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/teasesDirButton"
+        android:text="@string/setting_eos"/>
+
+    <CheckBox
+        android:id="@+id/hppCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/teasesDirEditText"
+        android:text="@string/setting_hpp"/>
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/hppCheckBox"
+        android:text="@string/save"
+        />
+
+</RelativeLayout>

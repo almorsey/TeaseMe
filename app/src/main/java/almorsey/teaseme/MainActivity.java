@@ -65,13 +65,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	/**
 	 * TEASES_DIR = directory where all teases are located
+	 * data = xml document including saves, setttings and misc info
+	 * dataFile = File object of @data xml file
 	 */
 	private static final String TAG = "almorsey";
-	public static String TEASES_DIR;
-	
+	static String TEASES_DIR;
+	static Document data;
+	static File dataFile;
+
 	/**
 	 * doc = xml document of tease
-	 * data = xml document including saves, setttings and misc info
 	 * mediaDir = path where media of tease is
 	 * timerTarget
 	 * delayStyle = [normal(shows time left), secret(shows a timer but not the time), hidden(doesn't show a timer)]
@@ -86,9 +89,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	 * delayDeception
 	 * delayStartTime
 	 * updateTimer
-	 * dataFile = File object of @data xml file
 	 */
-	private Document doc, data;
+	private Document doc;
 	private String mediaDir, timerTarget, delayStyle, currentPageId;
 	private Map<String, Timer> timers;
 	private ArrayList<String> set;
@@ -99,7 +101,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private int delay, delayDeception;
 	private long delayStartTime;
 	private Timer updateTimer;
-	private File dataFile;
 
 	/**
 	 * timerTextView = shows timer in the top right
@@ -139,6 +140,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		imageView.setImageResource(id);
 	}
 
+	static void saveDocument(Document document, Object obj) {
+		File file;
+		if (obj instanceof File) file = (File) obj;
+		else file = new File(obj.toString());
+		try {
+			TransformerFactory.newInstance().newTransformer().transform(new DOMSource(document), new StreamResult(file));
+		} catch (TransformerException e) {
+			Log.e(TAG, "saveDocument: ", e);
+		}
+	}
+
 	private int dpToPx(int dp) {
 		return (int) ((dp * getResources().getDisplayMetrics().density) + 0.5);
 	}
@@ -162,11 +174,31 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.activity_main);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		makeFullscreen();
+		setContentView(R.layout.activity_main);
+		initVars();
+		setupDataFile();
+		startupActions();
+	}
 
+	private void startupActions() {
+		TEASES_DIR = data.getElementsByTagName("TeaseDir").item(0).getTextContent();
+		File teasesDir = new File(TEASES_DIR);
+		if (!teasesDir.exists()) teasesDir.mkdirs();
+		if (data.getElementsByTagName(getString(R.string.root_settings_endearOnStartup)).item(0).getAttributes().getNamedItem("value").getNodeValue().equals("true")) {
+			audioPlayer = MediaPlayer.create(this, R.raw.hey);
+			audioPlayer.start();
+		}
+		if (data.getElementsByTagName(getString(R.string.root_settings_homePagePicture)).item(0).getAttributes().getNamedItem("value").getNodeValue().equals("true"))
+			setImage(imageView, R.drawable.welcome);
+		editText.setWebViewClient(new MyWebViewClient());
+		editText.loadData(surroundInBody(""), "text/html", "UTF-8");
+		String lastTease = data.getElementsByTagName("LastTease").item(0).getTextContent();
+		if (lastTease.isEmpty()) teaseButton.setText(R.string.none);
+		else teaseButton.setText(lastTease);
+	}
+
+	private void initVars() {
 		videoView = (VideoView) findViewById(R.id.videoView);
 		teaseButton = (Button) findViewById(R.id.teaseButton);
 		imageView = (ImageView) (findViewById(R.id.imageView));
@@ -193,44 +225,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		yesButtonsLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(250));
 		multiplePagesPattern = Pattern.compile("(\\w+)\\((\\d+)\\.\\.(\\d+)\\)");
 
-		String MAIN_DIR = Environment.getExternalStorageDirectory().toString() + "/Android/data/" + getApplication().getPackageName() + "/";
-		File mainDir = new File(MAIN_DIR);
-		if (!mainDir.exists()) mainDir.mkdirs();
-		dataFile = new File(MAIN_DIR + "data.xml");
-		if (!dataFile.exists()) try {
-			data = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-			Element root = data.createElement("Root");
-			Element saves = data.createElement("Saves");
-			root.appendChild(saves);
-			Element settings = data.createElement("Settings");
-			Element teaseDir = data.createElement("TeaseDir");
-			teaseDir.setTextContent(MAIN_DIR + "Teases/");
-			settings.appendChild(teaseDir);
-			Element misc = data.createElement("Misc");
-			Element lastTease = data.createElement("LastTease");
-			lastTease.setTextContent("");
-			misc.appendChild(lastTease);
-			root.appendChild(misc);
-			root.appendChild(settings);
-			data.appendChild(root);
-			saveDocument(data, dataFile);
-		} catch (ParserConfigurationException e) {
-			Log.e(TAG, "onCreate: ", e);
-		}
-		data = openDocument(dataFile.toString());
-		TEASES_DIR = data.getElementsByTagName("TeaseDir").item(0).getTextContent();
-		File teasesDir = new File(TEASES_DIR);
-		if (!teasesDir.exists()) teasesDir.mkdirs();
-
-		audioPlayer = MediaPlayer.create(this, R.raw.hey);
-		audioPlayer.start();
-		setImage(imageView, R.drawable.welcome);
-		editText.setWebViewClient(new MyWebViewClient());
-		editText.loadData(surroundInBody(""), "text/html", "UTF-8");
-		String lastTease = data.getElementsByTagName("LastTease").item(0).getTextContent();
-		if (lastTease.isEmpty()) teaseButton.setText(R.string.none);
-		else teaseButton.setText(lastTease);
-
 		newDocButton.setOnClickListener(this);
 		imageView.setOnClickListener(this);
 		teaseButton.setOnClickListener(this);
@@ -249,6 +243,57 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				return false;
 			}
 		});
+	}
+
+	private void setupDataFile() {
+		String MAIN_DIR = Environment.getExternalStorageDirectory().toString() + "/Android/data/" + getApplication().getPackageName() + "/";
+		File mainDir = new File(MAIN_DIR);
+		if (!mainDir.exists()) mainDir.mkdirs();
+		dataFile = new File(MAIN_DIR + "data.xml");
+		if (!dataFile.exists()) try {
+			data = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+			Element root = data.createElement("Root");
+			data.appendChild(root);
+			saveDocument(data, dataFile);
+		} catch (ParserConfigurationException e) {
+			Log.e(TAG, "onCreate: ", e);
+		}
+		data = openDocument(dataFile.toString());
+		Element root = (Element) data.getElementsByTagName(getString(R.string.root)).item(0);
+		if (root.getElementsByTagName(getString(R.string.root_saves)).getLength() == 0) {
+			Element saves = data.createElement(getString(R.string.root_saves));
+			root.appendChild(saves);
+		}
+		if (root.getElementsByTagName(getString(R.string.root_settings)).getLength() == 0) {
+			Element settings = data.createElement(getString(R.string.root_settings));
+			root.appendChild(settings);
+		}
+		Element settings = (Element) root.getElementsByTagName(getString(R.string.root_settings)).item(0);
+		if (settings.getElementsByTagName(getString(R.string.root_settings_teasesDirectory)).getLength() == 0) {
+			Element teaseDir = data.createElement(getString(R.string.root_settings_teasesDirectory));
+			teaseDir.setTextContent(Environment.getExternalStorageDirectory().toString() + "/Teases/");
+			settings.appendChild(teaseDir);
+		}
+		if (settings.getElementsByTagName(getString(R.string.root_settings_endearOnStartup)).getLength() == 0) {
+			Element eos = data.createElement(getString(R.string.root_settings_endearOnStartup));
+			eos.setAttribute("value", "true");
+			settings.appendChild(eos);
+		}
+		if (settings.getElementsByTagName(getString(R.string.root_settings_homePagePicture)).getLength() == 0) {
+			Element hpp = data.createElement(getString(R.string.root_settings_homePagePicture));
+			hpp.setAttribute("value", "true");
+			settings.appendChild(hpp);
+		}
+		if (root.getElementsByTagName(getString(R.string.root_misc)).getLength() == 0) {
+			Element misc = data.createElement(getString(R.string.root_misc));
+			root.appendChild(misc);
+		}
+		Element misc = (Element) data.getElementsByTagName(getString(R.string.root_misc)).item(0);
+		if (misc.getElementsByTagName(getString(R.string.root_misc_lastTease)).getLength() == 0) {
+			Element lastTease = data.createElement(getString(R.string.root_misc_lastTease));
+			lastTease.setTextContent("");
+			misc.appendChild(lastTease);
+		}
 	}
 
 	private void setPage(String pageID) {
@@ -362,11 +407,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
 					else delayStyle = "normal";
 					timerTextView.setVisibility(TextView.VISIBLE);
 					if (childSets != null)
-						for (String childSet : childSets.getNodeValue().split("\\|"))
-							set.add(childSet);
+						set.addAll(Arrays.asList(childSets.getNodeValue().split("\\|")));
+//						for (String childSet : childSets.getNodeValue().split("\\|"))
+//							set.add(childSet);
 					if (childUnsets != null)
-						for (String childUnset : childUnsets.getNodeValue().split("\\|"))
-							set.remove(childUnset);
+						set.removeAll(Arrays.asList(childUnsets.getNodeValue().split("\\|")));
+//						for (String childUnset : childUnsets.getNodeValue().split("\\|"))
+//							set.remove(childUnset);
 					Timer wait = new Timer();
 					wait.schedule(new TimerTask() {
 						public void run() {
@@ -520,9 +567,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				cheats.setVisibility(View.GONE);
 			}
 		} else if (v.equals(settingsButton)) {
-			Dialog dialog = new Dialog(this);
-			dialog.setContentView(R.layout.dialog_settings);
-			dialog.setTitle("Settings");
+			Intent intent = new Intent(this, SettingsActivity.class);
+			startActivity(intent);
 		} else if (v.equals(teaseButton)) {
 			final Dialog dialog = new Dialog(this);
 			dialog.setContentView(R.layout.dialog_xml_chooser);
@@ -739,17 +785,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		return null;
 	}
 
-	private void saveDocument(Document document, Object obj) {
-		File file;
-		if (obj instanceof File) file = (File) obj;
-		else file = new File(obj.toString());
-		try {
-			TransformerFactory.newInstance().newTransformer().transform(new DOMSource(document), new StreamResult(file));
-		} catch (TransformerException e) {
-			Log.e(TAG, "saveDocument: ", e);
-		}
-	}
-
 	private String processImage(String image) {
 		int index = image.indexOf("*");
 		if (index != -1) {
@@ -796,6 +831,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	}
 
 	private void makeFullscreen() {
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 	}
 
