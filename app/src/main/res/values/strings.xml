@@ -14,7 +14,7 @@
     <string name="_new">New</string>
     <string name="url" translatable="false">URL</string>
     <string name="save_resources">Save Resources</string>
-    <string name="inbalid_url">Invalid URL</string>
+    <string name="invalid_url">Invalid URL</string>
     <string name="tease_404">Tease not found!</string>
     <string name="unsavable">Could not save file</string>
     <string name="cancel">Cancel</string>
@@ -22,6 +22,13 @@
     <string name="teases_dir">Teases directory</string>
     <string name="setting_eos">Endear on startup</string>
     <string name="setting_hpp">Home page picture</string>
+    <string name="setting_ec">Enable cheats</string>
+    <string name="setting_">Enable cheats</string>
+    <string name="cheat_pid">Page ID</string>
+    <string name="cheat_pt">Pause Timer</string>
+    <string name="cheat_st">Skip Timer</string>
+    <string name="cheat_rs">Remove Save</string>
+    <string name="cheat_pp">Previous Page</string>
 
     <!-- Data Elements -->
     <string name="root">Root</string>
@@ -29,7 +36,13 @@
     <string name="root_settings">Settings</string>
     <string name="root_settings_teasesDirectory">TeasesDir</string>
     <string name="root_settings_endearOnStartup">EndearOnStartup</string>
-    <string name="root_settings.homePagePicture">HomePagePicture</string>
+    <string name="root_settings_homePagePicture">HomePagePicture</string>
+    <string name="root_settings_cheats">Cheats</string>
+    <string name="root_settings_cheats_pageID">PageID</string>
+    <string name="root_settings_cheats_pauseTimer">PauseTimer</string>
+    <string name="root_settings_cheats_skipTimer">SkipTimer</string>
+    <string name="root_settings_cheats_removeSave">RemoveSave</string>
+    <string name="root_settings_cheats_prevPage">PreviousPage</string>
     <string name="root_misc">Misc</string>
     <string name="root_misc_lastTease">LastTease</string>
 </resources>

@@ -198,7 +198,7 @@
                 android:textSize="14sp"/>
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/downloadButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
@@ -213,7 +213,6 @@
                 android:text="@string/download"
                 android:textColor="#ffffff"
                 android:textSize="14sp"/>
-
         </LinearLayout>
 
         <ScrollView

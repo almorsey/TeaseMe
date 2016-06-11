@@ -21,6 +21,7 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -69,6 +70,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	 * dataFile = File object of @data xml file
 	 */
 	private static final String TAG = "almorsey";
+	private static final String TRUE = "true", FALSE = "false";
 	static String TEASES_DIR;
 	static Document data;
 	static File dataFile;
@@ -151,6 +153,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 	}
 
+	static boolean boolFromXmlElement(String elementName) {
+		return MainActivity.data.getElementsByTagName(elementName).item(0).getAttributes().getNamedItem("value").getNodeValue().equals(TRUE);
+	}
+
+	static String stringFromCheckBox(CompoundButton v) {
+		return v.isChecked() ? TRUE : FALSE;
+	}
+
 	private int dpToPx(int dp) {
 		return (int) ((dp * getResources().getDisplayMetrics().density) + 0.5);
 	}
@@ -182,7 +192,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	}
 
 	private void startupActions() {
-		TEASES_DIR = data.getElementsByTagName("TeaseDir").item(0).getTextContent();
+		TEASES_DIR = data.getElementsByTagName(getString(R.string.root_settings_teasesDirectory)).item(0).getTextContent();
 		File teasesDir = new File(TEASES_DIR);
 		if (!teasesDir.exists()) teasesDir.mkdirs();
 		if (data.getElementsByTagName(getString(R.string.root_settings_endearOnStartup)).item(0).getAttributes().getNamedItem("value").getNodeValue().equals("true")) {
@@ -193,9 +203,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			setImage(imageView, R.drawable.welcome);
 		editText.setWebViewClient(new MyWebViewClient());
 		editText.loadData(surroundInBody(""), "text/html", "UTF-8");
-		String lastTease = data.getElementsByTagName("LastTease").item(0).getTextContent();
+		String lastTease = data.getElementsByTagName(getString(R.string.root_misc_lastTease)).item(0).getTextContent();
 		if (lastTease.isEmpty()) teaseButton.setText(R.string.none);
 		else teaseButton.setText(lastTease);
+		if (!boolFromXmlElement(getString(R.string.root_settings_cheats_pageID))) pageIdViewButton.setVisibility(View.GONE);
+		if (!boolFromXmlElement(getString(R.string.root_settings_cheats_pauseTimer))) pauseTimerButton.setVisibility(View.GONE);
+		if (!boolFromXmlElement(getString(R.string.root_settings_cheats_skipTimer))) skipTimerButton.setVisibility(View.GONE);
+		if (!boolFromXmlElement(getString(R.string.root_settings_cheats_removeSave))) removeSaveButton.setVisibility(View.GONE);
+		if (!boolFromXmlElement(getString(R.string.root_settings_cheats_prevPage))) prevPageButton.setVisibility(View.GONE);
 	}
 
 	private void initVars() {
@@ -212,7 +227,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		saveButton = (Button) findViewById(R.id.saveButton);
 		removeSaveButton = (Button) findViewById(R.id.removeSaveButton);
 		prevPageButton = (Button) findViewById(R.id.prevPageButton);
-		downloadButton = (Button) findViewById(R.id.button);
+		downloadButton = (Button) findViewById(R.id.downloadButton);
 		buttonsLayout = (LinearLayout) findViewById(R.id.buttonsLayout);
 		timerTextView = (TextView) findViewById(R.id.timerTextView);
 		editTextScrollView = (ScrollView) findViewById(R.id.editTextScrollView);
@@ -224,6 +239,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		noButtonsLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
 		yesButtonsLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(250));
 		multiplePagesPattern = Pattern.compile("(\\w+)\\((\\d+)\\.\\.(\\d+)\\)");
+		audioPlayer = new MediaPlayer();
 
 		newDocButton.setOnClickListener(this);
 		imageView.setOnClickListener(this);
@@ -269,20 +285,55 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			root.appendChild(settings);
 		}
 		Element settings = (Element) root.getElementsByTagName(getString(R.string.root_settings)).item(0);
-		if (settings.getElementsByTagName(getString(R.string.root_settings_teasesDirectory)).getLength() == 0) {
-			Element teaseDir = data.createElement(getString(R.string.root_settings_teasesDirectory));
-			teaseDir.setTextContent(Environment.getExternalStorageDirectory().toString() + "/Teases/");
-			settings.appendChild(teaseDir);
-		}
-		if (settings.getElementsByTagName(getString(R.string.root_settings_endearOnStartup)).getLength() == 0) {
-			Element eos = data.createElement(getString(R.string.root_settings_endearOnStartup));
-			eos.setAttribute("value", "true");
-			settings.appendChild(eos);
-		}
-		if (settings.getElementsByTagName(getString(R.string.root_settings_homePagePicture)).getLength() == 0) {
-			Element hpp = data.createElement(getString(R.string.root_settings_homePagePicture));
-			hpp.setAttribute("value", "true");
-			settings.appendChild(hpp);
+		{
+			if (settings.getElementsByTagName(getString(R.string.root_settings_teasesDirectory)).getLength() == 0) {
+				Element teaseDir = data.createElement(getString(R.string.root_settings_teasesDirectory));
+				teaseDir.setTextContent(Environment.getExternalStorageDirectory().toString() + "/Teases/");
+				settings.appendChild(teaseDir);
+			}
+			if (settings.getElementsByTagName(getString(R.string.root_settings_endearOnStartup)).getLength() == 0) {
+				Element eos = data.createElement(getString(R.string.root_settings_endearOnStartup));
+				eos.setAttribute("value", "true");
+				settings.appendChild(eos);
+			}
+			if (settings.getElementsByTagName(getString(R.string.root_settings_homePagePicture)).getLength() == 0) {
+				Element hpp = data.createElement(getString(R.string.root_settings_homePagePicture));
+				hpp.setAttribute("value", "true");
+				settings.appendChild(hpp);
+			}
+			if (settings.getElementsByTagName(getString(R.string.root_settings_cheats)).getLength() == 0) {
+				Element cheats = data.createElement(getString(R.string.root_settings_cheats));
+				cheats.setAttribute("value", "true");
+				settings.appendChild(cheats);
+			}
+			Element cheats = (Element) data.getElementsByTagName(getString(R.string.root_settings_cheats)).item(0);
+			{
+				if (cheats.getElementsByTagName(getString(R.string.root_settings_cheats_pageID)).getLength() == 0) {
+					Element pid = data.createElement(getString(R.string.root_settings_cheats_pageID));
+					pid.setAttribute("value", "true");
+					cheats.appendChild(pid);
+				}
+				if (cheats.getElementsByTagName(getString(R.string.root_settings_cheats_pauseTimer)).getLength() == 0) {
+					Element pt = data.createElement(getString(R.string.root_settings_cheats_pauseTimer));
+					pt.setAttribute("value", "true");
+					cheats.appendChild(pt);
+				}
+				if (cheats.getElementsByTagName(getString(R.string.root_settings_cheats_skipTimer)).getLength() == 0) {
+					Element st = data.createElement(getString(R.string.root_settings_cheats_skipTimer));
+					st.setAttribute("value", "true");
+					cheats.appendChild(st);
+				}
+				if (cheats.getElementsByTagName(getString(R.string.root_settings_cheats_removeSave)).getLength() == 0) {
+					Element rs = data.createElement(getString(R.string.root_settings_cheats_removeSave));
+					rs.setAttribute("value", "true");
+					cheats.appendChild(rs);
+				}
+				if (cheats.getElementsByTagName(getString(R.string.root_settings_cheats_prevPage)).getLength() == 0) {
+					Element pp = data.createElement(getString(R.string.root_settings_cheats_prevPage));
+					pp.setAttribute("value", "true");
+					cheats.appendChild(pp);
+				}
+			}
 		}
 		if (root.getElementsByTagName(getString(R.string.root_misc)).getLength() == 0) {
 			Element misc = data.createElement(getString(R.string.root_misc));
@@ -546,9 +597,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				imageView.setVisibility(ImageView.VISIBLE);
 				editTextScrollView.setLayoutParams(yesButtonsLayoutParams);
 				mediaDir = "";
-				setImage(imageView, R.drawable.welcome);
+				if (boolFromXmlElement(getString(R.string.root_settings_homePagePicture)))
+					setImage(imageView, R.drawable.welcome);
 				editText.loadData(surroundInBody(""), "text/html", "UTF-8");
 				audioPlayer.stop();
+				if (boolFromXmlElement(getString(R.string.root_settings_endearOnStartup))){
+					audioPlayer = MediaPlayer.create(this, R.raw.hey);
+					audioPlayer.start();
+				}
 				deleteTimers();
 				timerTextView.setVisibility(TextView.GONE);
 			} else {
@@ -561,7 +617,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		} else if (v.equals(imageView) || v.equals(videoView)) {
 			if (newDocButton.getVisibility() == Button.INVISIBLE) {
 				newDocButton.setVisibility(Button.VISIBLE);
-				cheats.setVisibility(LinearLayout.VISIBLE);
+				if (boolFromXmlElement(getString(R.string.root_settings_cheats)))
+					cheats.setVisibility(LinearLayout.VISIBLE);
 			} else if (doc != null && homeButtons.getVisibility() == EditText.GONE) {
 				changeNewDocButton("invisible");
 				cheats.setVisibility(View.GONE);

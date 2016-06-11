@@ -72,7 +72,7 @@ public class DownloadActivity extends AppCompatActivity {
 
 		urlEditText = (EditText) findViewById(R.id.urlEditText);
 		saveResourcesCheckBox = (CheckBox) findViewById(R.id.saveResourcesCheckBox);
-		button = (Button) findViewById(R.id.button);
+		button = (Button) findViewById(R.id.downloadButton);
 		outputTextView = (TextView) findViewById(R.id.outputTextView);
 		outputScrollView = (ScrollView) findViewById(R.id.outputScrollView);
 
@@ -110,7 +110,7 @@ public class DownloadActivity extends AppCompatActivity {
 				} else if (matcher.group(1).equals("tease"))
 					docsGet = new ASyncGet(new ArrayList<org.jsoup.nodes.Document>(), matcher.group(0), 1);
 			} else {
-				outputTextView.setText(R.string.inbalid_url);
+				outputTextView.setText(R.string.invalid_url);
 			}
 		} else {
 			cancelled = true;
