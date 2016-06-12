@@ -203,9 +203,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			setImage(imageView, R.drawable.welcome);
 		editText.setWebViewClient(new MyWebViewClient());
 		editText.loadData(surroundInBody(""), "text/html", "UTF-8");
-		String lastTease = data.getElementsByTagName(getString(R.string.root_misc_lastTease)).item(0).getTextContent();
-		if (lastTease.isEmpty()) teaseButton.setText(R.string.none);
-		else teaseButton.setText(lastTease);
+		if (boolFromXmlElement(getString(R.string.root_settings_rememberLastTease))) {
+			String lastTease = data.getElementsByTagName(getString(R.string.root_misc_lastTease)).item(0).getTextContent();
+			if (lastTease.isEmpty()) teaseButton.setText(R.string.none);
+			else teaseButton.setText(lastTease);
+		}
 		if (!boolFromXmlElement(getString(R.string.root_settings_cheats_pageID))) pageIdViewButton.setVisibility(View.GONE);
 		if (!boolFromXmlElement(getString(R.string.root_settings_cheats_pauseTimer))) pauseTimerButton.setVisibility(View.GONE);
 		if (!boolFromXmlElement(getString(R.string.root_settings_cheats_skipTimer))) skipTimerButton.setVisibility(View.GONE);
@@ -300,6 +302,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				Element hpp = data.createElement(getString(R.string.root_settings_homePagePicture));
 				hpp.setAttribute("value", "true");
 				settings.appendChild(hpp);
+			}
+			if (settings.getElementsByTagName(getString(R.string.root_settings_rememberLastTease)).getLength() == 0) {
+				Element rlt = data.createElement(getString(R.string.root_settings_rememberLastTease));
+				rlt.setAttribute("value", "true");
+				settings.appendChild(rlt);
 			}
 			if (settings.getElementsByTagName(getString(R.string.root_settings_cheats)).getLength() == 0) {
 				Element cheats = data.createElement(getString(R.string.root_settings_cheats));
@@ -601,7 +608,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 					setImage(imageView, R.drawable.welcome);
 				editText.loadData(surroundInBody(""), "text/html", "UTF-8");
 				audioPlayer.stop();
-				if (boolFromXmlElement(getString(R.string.root_settings_endearOnStartup))){
+				if (boolFromXmlElement(getString(R.string.root_settings_endearOnStartup))) {
 					audioPlayer = MediaPlayer.create(this, R.raw.hey);
 					audioPlayer.start();
 				}

@@ -27,7 +27,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
 	private Button teasesDirButton, saveButton;
 	private EditText teasesDirEditText;
-	private CheckBox eosCheckBox, hppCheckBox, pidCheckBox, ptCheckBox, stCheckBox, rsCheckBox, ppCheckBox;
+	private CheckBox eosCheckBox, hppCheckBox, pidCheckBox, ptCheckBox, stCheckBox, rsCheckBox, ppCheckBox, rltCheckBox;
 	private Switch cheatsSwitch;
 	private GridLayout cheatsGridLayout;
 	private DirectoryChooserFragment mDialog;
@@ -54,6 +54,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 		stCheckBox = (CheckBox) findViewById(R.id.stCheckBox);
 		rsCheckBox = (CheckBox) findViewById(R.id.rsCheckBox);
 		ppCheckBox = (CheckBox) findViewById(R.id.ppCheckBox);
+		rltCheckBox = (CheckBox) findViewById(R.id.rltCheckBox);
 
 		teasesDirButton.setOnClickListener(this);
 		saveButton.setOnClickListener(this);
@@ -68,6 +69,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 		stCheckBox.setChecked(boolFromXmlElement(getString(R.string.root_settings_cheats_skipTimer)));
 		rsCheckBox.setChecked(boolFromXmlElement(getString(R.string.root_settings_cheats_removeSave)));
 		ppCheckBox.setChecked(boolFromXmlElement(getString(R.string.root_settings_cheats_prevPage)));
+		rltCheckBox.setChecked(boolFromXmlElement(getString(R.string.root_settings_rememberLastTease)));
 		cheatsSwitch.setChecked(!cheatsSwitch.isChecked());
 
 		final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
@@ -99,6 +101,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 			rsE.setAttribute("value", stringFromCheckBox(rsCheckBox));
 			Element ppE = (Element) data.getElementsByTagName(getString(R.string.root_settings_cheats_prevPage)).item(0);
 			ppE.setAttribute("value", stringFromCheckBox(ppCheckBox));
+			Element rltE = (Element) data.getElementsByTagName(getString(R.string.root_settings_rememberLastTease)).item(0);
+			rltE.setAttribute("value", stringFromCheckBox(rltCheckBox));
 			MainActivity.saveDocument(data, MainActivity.dataFile);
 			Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
 		}

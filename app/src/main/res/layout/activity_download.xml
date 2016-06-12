@@ -17,9 +17,9 @@
         android:id="@+id/outputScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignEnd="@+id/downloadButton"
-        android:layout_alignRight="@+id/downloadButton"
-        android:layout_below="@+id/downloadButton"
+        android:layout_alignEnd="@+id/progressBar"
+        android:layout_alignRight="@+id/progressBar"
+        android:layout_below="@+id/progressBar"
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp">
@@ -62,5 +62,14 @@
         android:layout_alignStart="@+id/urlEditText"
         android:checked="true"
         android:text="@string/save_resources"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/saveResourcesCheckBox"
+        android:layout_margin="10dp"
+        />
 
 </RelativeLayout>

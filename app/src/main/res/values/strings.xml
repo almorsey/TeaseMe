@@ -23,12 +23,12 @@
     <string name="setting_eos">Endear on startup</string>
     <string name="setting_hpp">Home page picture</string>
     <string name="setting_ec">Enable cheats</string>
-    <string name="setting_">Enable cheats</string>
-    <string name="cheat_pid">Page ID</string>
-    <string name="cheat_pt">Pause Timer</string>
-    <string name="cheat_st">Skip Timer</string>
-    <string name="cheat_rs">Remove Save</string>
-    <string name="cheat_pp">Previous Page</string>
+    <string name="setting_cheat_pid">Page ID</string>
+    <string name="setting_cheat_pt">Pause Timer</string>
+    <string name="setting_cheat_st">Skip Timer</string>
+    <string name="setting_cheat_rs">Remove Save</string>
+    <string name="setting_cheat_pp">Previous Page</string>
+    <string name="setting_rlt">Remember last tease</string>
 
     <!-- Data Elements -->
     <string name="root">Root</string>
@@ -37,6 +37,7 @@
     <string name="root_settings_teasesDirectory">TeasesDir</string>
     <string name="root_settings_endearOnStartup">EndearOnStartup</string>
     <string name="root_settings_homePagePicture">HomePagePicture</string>
+    <string name="root_settings_rememberLastTease">RememberLastTease</string>
     <string name="root_settings_cheats">Cheats</string>
     <string name="root_settings_cheats_pageID">PageID</string>
     <string name="root_settings_cheats_pauseTimer">PauseTimer</string>

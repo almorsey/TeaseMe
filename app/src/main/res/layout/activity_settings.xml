@@ -13,9 +13,11 @@
         android:elevation="4dp"/>
 
     <RelativeLayout
+        android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:padding="5dp">
 
         <Button
             android:id="@+id/teasesDirButton"
@@ -50,14 +52,19 @@
             android:layout_below="@+id/teasesDirEditText"
             android:text="@string/setting_hpp"/>
 
+        <View
+            android:id="@+id/divider_above_cheats"
+            style="@style/Divider"
+            android:layout_below="@id/hppCheckBox"
+            />
 
         <Switch
             android:id="@+id/ecSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/eosCheckBox"
-            android:layout_below="@+id/eosCheckBox"
-            android:text="@string/setting_ec"/>
+            android:layout_below="@id/divider_above_cheats"
+            android:text="@string/setting_ec"
+            />
 
         <GridLayout
             android:id="@+id/cheatsGidLayout"
@@ -66,15 +73,17 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/ecSwitch"
             android:columnCount="3"
-            android:rowCount="2">
+            android:rowCount="2"
+            >
 
             <CheckBox
                 android:id="@+id/pidCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="0"
+                android:layout_columnWeight=".3333"
                 android:layout_row="0"
-                android:text="@string/cheat_pid"
+                android:text="@string/setting_cheat_pid"
                 />
 
             <CheckBox
@@ -82,8 +91,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
+                android:layout_columnWeight=".3333"
                 android:layout_row="0"
-                android:text="@string/cheat_pt"
+                android:text="@string/setting_cheat_pt"
                 />
 
             <CheckBox
@@ -91,8 +101,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="2"
+                android:layout_columnWeight=".3333"
                 android:layout_row="0"
-                android:text="@string/cheat_st"
+                android:text="@string/setting_cheat_st"
                 />
 
             <CheckBox
@@ -100,8 +111,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="0"
+                android:layout_columnWeight=".3333"
                 android:layout_row="1"
-                android:text="@string/cheat_rs"
+                android:text="@string/setting_cheat_rs"
                 />
 
             <CheckBox
@@ -109,18 +121,32 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
+                android:layout_columnWeight=".3333"
                 android:layout_row="1"
-                android:text="@string/cheat_pp"
+                android:text="@string/setting_cheat_pp"
                 />
         </GridLayout>
 
-        <Button
-            android:id="@+id/saveButton"
+        <View
+            android:id="@+id/divider_below_cheats"
+            style="@style/Divider"
+            android:layout_below="@id/cheatsGidLayout"/>
+
+        <CheckBox
+            android:id="@+id/rltCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/cheatsGidLayout"
-            android:text="@string/save"/>
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/divider_below_cheats"
+            android:text="@string/setting_rlt"/>
     </RelativeLayout>
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/relativeLayout"
+        android:text="@string/save"/>
 
 </RelativeLayout>

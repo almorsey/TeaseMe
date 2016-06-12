@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -58,6 +59,7 @@ public class DownloadActivity extends AppCompatActivity {
 	private Button button;
 	private ScrollView outputScrollView;
 	private TextView outputTextView;
+	private ProgressBar progressBar;
 	private Pattern buttonsPattern = Pattern.compile("target\\d+:(.+?)#,cap\\d+:\"(.+?)\"");
 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +77,7 @@ public class DownloadActivity extends AppCompatActivity {
 		button = (Button) findViewById(R.id.downloadButton);
 		outputTextView = (TextView) findViewById(R.id.outputTextView);
 		outputScrollView = (ScrollView) findViewById(R.id.outputScrollView);
+		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
 		urlEditText.setOnKeyListener(new View.OnKeyListener() {
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -109,10 +112,14 @@ public class DownloadActivity extends AppCompatActivity {
 							new String[]{matcher.group(0), ASyncGet.JSOUP_METHOD});
 				} else if (matcher.group(1).equals("tease"))
 					docsGet = new ASyncGet(new ArrayList<org.jsoup.nodes.Document>(), matcher.group(0), 1);
+				progressBar.setProgress(0);
+				progressBar.setIndeterminate(true);
 			} else {
 				outputTextView.setText(R.string.invalid_url);
 			}
 		} else {
+			progressBar.setProgress(0);
+			progressBar.setIndeterminate(false);
 			cancelled = true;
 			docsGet.cancel(true);
 			for (ResourceDownloader rd : rds) {
@@ -122,8 +129,7 @@ public class DownloadActivity extends AppCompatActivity {
 		}
 	}
 
-	private Document makeBaseXML(String teaseId, String teaseUrl, String authorName, String authorUrl)
-			throws ParserConfigurationException {
+	private Document makeBaseXML(String teaseId, String teaseUrl, String authorName, String authorUrl) throws ParserConfigurationException {
 		newline("Loaded:" + teaseTitle);
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 		Element teaseElement = doc.createElement("Tease");
@@ -178,6 +184,8 @@ public class DownloadActivity extends AppCompatActivity {
 		try {
 			doc = makeBaseXML(teaseId, teaseUrl, authorName, authorUrl);
 			Element pagesE = (Element) doc.getElementsByTagName("Pages").item(0);
+			progressBar.setMax(docs.size());
+			progressBar.setIndeterminate(false);
 			for (int i = 0; i < docs.size(); i++) {
 				org.jsoup.nodes.Document doci = docs.get(i);
 				Element pageE = doc.createElement("Page");
@@ -402,6 +410,8 @@ public class DownloadActivity extends AppCompatActivity {
 				String[] pages = scriptDoc.split("\\n");
 				ArrayList<String> files = new ArrayList<>();
 				Element pagesElement = (Element) doc.getElementsByTagName("Pages").item(0);
+				progressBar.setMax(pages.length);
+				progressBar.setIndeterminate(false);
 				for (String pageString : pages) {
 					Element page = evalPage(doc, pageString.trim());
 					NodeList children = page.getChildNodes();
@@ -559,7 +569,7 @@ public class DownloadActivity extends AppCompatActivity {
 			} catch (CancellationException e) {
 				Log.d(TAG, "CancellationException");
 			}
-			if (docs != null) try {
+			if (docs != null) try { // If normal tease
 				Object[] value = (Object[]) val;
 				org.jsoup.nodes.Document doc = (org.jsoup.nodes.Document) value[0];
 				docs.add(doc);
@@ -662,6 +672,7 @@ public class DownloadActivity extends AppCompatActivity {
 			try {
 				newline(s);
 				rds.remove(this);
+				progressBar.incrementProgressBy(1);
 				if (rds.size() == 0) done();
 			} catch (CancellationException e) {
 				Log.e(TAG, "onPostExecute: ", e);
