@@ -23,7 +23,8 @@ import static almorsey.teaseme.MainActivity.boolFromXmlElement;
 import static almorsey.teaseme.MainActivity.data;
 import static almorsey.teaseme.MainActivity.stringFromCheckBox;
 
-public class SettingsActivity extends AppCompatActivity implements View.OnClickListener, DirectoryChooserFragment.OnFragmentInteractionListener, CompoundButton.OnCheckedChangeListener {
+public class SettingsActivity extends AppCompatActivity
+		implements View.OnClickListener, DirectoryChooserFragment.OnFragmentInteractionListener, CompoundButton.OnCheckedChangeListener{
 
 	private Button teasesDirButton, saveButton;
 	private EditText teasesDirEditText;
@@ -32,15 +33,15 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 	private GridLayout cheatsGridLayout;
 	private DirectoryChooserFragment mDialog;
 
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		toolbar.setTitle(R.string.settings);
+		if(toolbar != null) toolbar.setTitle(R.string.settings);
 		setSupportActionBar(toolbar);
 		ActionBar actionBar = getSupportActionBar();
-		actionBar.setDisplayHomeAsUpEnabled(true);
+		if(actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
 
 		teasesDirButton = (Button) findViewById(R.id.teasesDirButton);
 		teasesDirEditText = (EditText) findViewById(R.id.teasesDirEditText);
@@ -72,17 +73,14 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 		rltCheckBox.setChecked(boolFromXmlElement(getString(R.string.root_settings_rememberLastTease)));
 		cheatsSwitch.setChecked(!cheatsSwitch.isChecked());
 
-		final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
-				.newDirectoryName("Teases")
-				.allowNewDirectoryNameModification(true)
-				.build();
+		final DirectoryChooserConfig config = DirectoryChooserConfig.builder().newDirectoryName("Teases").allowNewDirectoryNameModification(true).build();
 		mDialog = DirectoryChooserFragment.newInstance(config);
 	}
 
-	public void onClick(View v) {
-		if (v.equals(teasesDirButton)) {
+	public void onClick(View v){
+		if(v.equals(teasesDirButton)){
 			mDialog.show(getFragmentManager(), null);
-		} else if (v.equals(saveButton)) {
+		}else if(v.equals(saveButton)){
 			Element teaseDirE = (Element) data.getElementsByTagName(getString(R.string.root_settings_teasesDirectory)).item(0);
 			teaseDirE.setTextContent(teasesDirEditText.getText().toString());
 			Element eosE = (Element) data.getElementsByTagName(getString(R.string.root_settings_endearOnStartup)).item(0);
@@ -108,21 +106,21 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 		}
 	}
 
-	public void onSelectDirectory(@NonNull String path) {
+	public void onSelectDirectory(@NonNull String path){
 		teasesDirEditText.setText(path);
 		mDialog.dismiss();
 	}
 
-	public void onCancelChooser() {
+	public void onCancelChooser(){
 		mDialog.dismiss();
 	}
 
-	public void onCheckedChanged(CompoundButton v, boolean isChecked) {
-		if (v.equals(cheatsSwitch)) {
+	public void onCheckedChanged(CompoundButton v, boolean isChecked){
+		if(v.equals(cheatsSwitch)){
 			int flag;
-			if (isChecked) flag = View.VISIBLE;
+			if(isChecked) flag = View.VISIBLE;
 			else flag = View.GONE;
-			for (int i = 0; i < cheatsGridLayout.getChildCount(); i++) {
+			for(int i = 0; i < cheatsGridLayout.getChildCount(); i++){
 				View cheat = cheatsGridLayout.getChildAt(i);
 				cheat.setVisibility(flag);
 			}

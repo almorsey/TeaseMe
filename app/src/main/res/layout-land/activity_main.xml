@@ -23,6 +23,7 @@
             android:contentDescription="@string/image"
             android:minHeight="100dp"
             android:minWidth="100dp"
+            android:onClick="onMediaViewButtonClicked"
             android:scaleType="fitCenter"/>
 
         <VideoView
@@ -33,6 +34,7 @@
             android:clickable="true"
             android:minHeight="100dp"
             android:minWidth="100dp"
+            android:onClick="onMediaViewButtonClicked"
             android:scaleType="fitCenter"
             android:visibility="gone"/>
 
@@ -50,6 +52,7 @@
             android:layout_marginStart="10dp"
             android:background="@drawable/circle_button"
             android:checked="false"
+            android:onClick="onNewDocButtonClicked"
             android:text="@string/start"
             android:textColor="#e8e8e8"
             android:textSize="17sp"/>
@@ -69,6 +72,7 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="onPageIdViewButtonClicked"
                 android:text=""/>
 
             <Button
@@ -76,6 +80,7 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="onPauseTimerButtonClicked"
                 android:text="@string/pause_timer"/>
 
             <Button
@@ -83,6 +88,7 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="onSkipTimerButtonClicked"
                 android:text="@string/skip_timer"/>
 
             <Button
@@ -90,6 +96,7 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="onSaveButtonClicked"
                 android:text="@string/save"
                 android:visibility="gone"/>
 
@@ -98,6 +105,7 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="onRemoveSaveButtonClicked"
                 android:text="@string/unsave"/>
 
             <Button
@@ -105,6 +113,7 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="onPrevPageButtonClicked"
                 android:text="@string/prev_page"/>
         </LinearLayout>
 
@@ -171,6 +180,7 @@
                 android:ellipsize="end"
                 android:focusable="true"
                 android:maxLines="1"
+                android:onClick="onTeaseButtonClicked"
                 android:paddingBottom="3dp"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp"
@@ -189,6 +199,7 @@
                 android:ellipsize="end"
                 android:focusable="true"
                 android:maxLines="1"
+                android:onClick="onSettingsButtonClicked"
                 android:paddingBottom="3dp"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp"
@@ -206,6 +217,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:maxLines="1"
+                android:onClick="onDownloadButtonClicked"
                 android:paddingBottom="3dp"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp"

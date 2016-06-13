@@ -30,6 +30,33 @@
     <string name="setting_cheat_pp">Previous Page</string>
     <string name="setting_rlt">Remember last tease</string>
 
+    <!-- Save Elements -->
+    <string name="save_page">Page</string>
+    <string name="save_sets">Sets</string>
+    <string name="save_prevPages">PrevPages</string>
+
+    <!-- Doc Elements -->
+    <string name="doc_mediaDirectory">MediaDirectory</string>
+    <string name="doc_page">Page</string>
+    <string name="doc_autoSetPageWhenSeen">AutoSetPageWhenSeen</string>
+    <string name="doc_set">set</string>
+    <string name="doc_unset">unset</string>
+    <string name="doc_ifSet">if-set</string>
+    <string name="doc_ifNotSet">if-not-set</string>
+    <string name="doc_image">Image</string>
+    <string name="doc_video">Video</string>
+    <string name="doc_startAt">start-at</string>
+    <string name="doc_stopAt">stop-at</string>
+    <string name="doc_text">Text</string>
+    <string name="doc_button">Button</string>
+    <string name="doc_target">target</string>
+    <string name="doc_delay">Delay</string>
+    <string name="doc_startWith">start-with</string>
+    <string name="doc_seconds">seconds</string>
+    <string name="doc_style">style</string>
+    <string name="doc_audio">Audio</string>
+    <string name="doc_metronome">Metronome</string>
+
     <!-- Data Elements -->
     <string name="root">Root</string>
     <string name="root_saves">Saves</string>
