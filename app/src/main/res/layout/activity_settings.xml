@@ -139,7 +139,17 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/divider_below_cheats"
             android:text="@string/setting_rlt"/>
+
     </RelativeLayout>
+
+    <Button
+        android:id="@+id/rasButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/relativeLayout"
+        android:text="@string/setting_ral"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/saveButton"

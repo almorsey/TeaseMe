@@ -10,236 +10,221 @@
               android:weightSum="1"
               tools:context="almorsey.teaseme.MainActivity">
 
-    <RelativeLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight=".75">
+	<RelativeLayout
+		android:layout_width="0dp"
+		android:layout_height="match_parent"
+		android:layout_weight=".75">
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="true"
-            android:contentDescription="@string/image"
-            android:minHeight="100dp"
-            android:minWidth="100dp"
-            android:onClick="onMediaViewButtonClicked"
-            android:scaleType="fitCenter"/>
+		<ImageView
+			android:id="@+id/imageView"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:clickable="true"
+			android:contentDescription="@string/image"
+			android:minHeight="100dp"
+			android:minWidth="100dp"
+			android:scaleType="fitCenter" />
 
-        <VideoView
-            android:id="@+id/videoView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:clickable="true"
-            android:minHeight="100dp"
-            android:minWidth="100dp"
-            android:onClick="onMediaViewButtonClicked"
-            android:scaleType="fitCenter"
-            android:visibility="gone"/>
+		<VideoView
+			android:id="@+id/videoView"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_centerInParent="true"
+			android:clickable="true"
+			android:minHeight="100dp"
+			android:minWidth="100dp"
+			android:scaleType="fitCenter"
+			android:visibility="gone" />
 
-        <Button
-            android:id="@+id/newDocButton"
-            android:layout_width="60dp"
-            android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="false"
-            android:layout_alignParentLeft="false"
-            android:layout_alignParentRight="false"
-            android:layout_alignParentStart="false"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginStart="10dp"
-            android:background="@drawable/circle_button"
-            android:checked="false"
-            android:onClick="onNewDocButtonClicked"
-            android:text="@string/start"
-            android:textColor="#e8e8e8"
-            android:textSize="17sp"/>
+		<Button
+			android:id="@+id/newDocButton"
+			android:layout_width="60dp"
+			android:layout_height="50dp"
+			android:layout_alignParentBottom="true"
+			android:layout_alignParentEnd="false"
+			android:layout_alignParentLeft="false"
+			android:layout_alignParentRight="false"
+			android:layout_alignParentStart="false"
+			android:layout_marginBottom="10dp"
+			android:layout_marginLeft="10dp"
+			android:layout_marginStart="10dp"
+			android:background="@drawable/circle_button"
+			android:checked="false"
+			android:text="@string/start"
+			android:textColor="#e8e8e8"
+			android:textSize="17sp" />
 
-        <LinearLayout
-            android:id="@+id/cheats"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:orientation="vertical"
-            android:visibility="gone">
+		<LinearLayout
+			android:id="@+id/cheats"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentStart="true"
+			android:layout_alignParentTop="true"
+			android:orientation="vertical"
+			android:visibility="gone">
 
-            <Button
-                android:id="@+id/pageIdViewButton"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onPageIdViewButtonClicked"
-                android:text=""/>
+			<Button
+				android:id="@+id/pageIdViewButton"
+				style="?android:attr/buttonStyleSmall"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="" />
 
-            <Button
-                android:id="@+id/pauseTimerButton"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onPauseTimerButtonClicked"
-                android:text="@string/pause_timer"/>
+			<Button
+				android:id="@+id/pauseTimerButton"
+				style="?android:attr/buttonStyleSmall"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/pause_timer" />
 
-            <Button
-                android:id="@+id/skipTimerButton"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onSkipTimerButtonClicked"
-                android:text="@string/skip_timer"/>
+			<Button
+				android:id="@+id/skipTimerButton"
+				style="?android:attr/buttonStyleSmall"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/skip_timer" />
 
-            <Button
-                android:id="@+id/saveButton"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onSaveButtonClicked"
-                android:text="@string/save"
-                android:visibility="gone"/>
+			<Button
+				android:id="@+id/saveButton"
+				style="?android:attr/buttonStyleSmall"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/save"
+				android:visibility="gone" />
 
-            <Button
-                android:id="@+id/removeSaveButton"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onRemoveSaveButtonClicked"
-                android:text="@string/unsave"/>
+			<Button
+				android:id="@+id/removeSaveButton"
+				style="?android:attr/buttonStyleSmall"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/unsave" />
 
-            <Button
-                android:id="@+id/prevPageButton"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onPrevPageButtonClicked"
-                android:text="@string/prev_page"/>
-        </LinearLayout>
+			<Button
+				android:id="@+id/prevPageButton"
+				style="?android:attr/buttonStyleSmall"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/prev_page" />
+		</LinearLayout>
+	</RelativeLayout>
 
-    </RelativeLayout>
+	<LinearLayout
+		android:layout_width="0dp"
+		android:layout_height="match_parent"
+		android:layout_marginBottom="5dp"
+		android:layout_marginLeft="5dp"
+		android:layout_marginRight="5dp"
+		android:layout_marginTop="5dp"
+		android:layout_weight=".25"
+		android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
-        android:layout_weight=".25"
-        android:orientation="vertical">
+		<TextView
+			android:id="@+id/timerTextView"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:clickable="true"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:textColor="#ffffff"
+			android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/timerTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="#ffffff"
-            android:visibility="gone"/>
+		<ScrollView
+			android:id="@+id/editTextScrollView"
+			android:layout_width="match_parent"
+			android:layout_height="250dp"
+			android:fadeScrollbars="false"
+			android:fillViewport="true"
+			android:paddingEnd="3dp"
+			android:paddingLeft="0dp"
+			android:paddingRight="3dp"
+			android:paddingStart="0dp">
 
-        <ScrollView
-            android:id="@+id/editTextScrollView"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:fadeScrollbars="false"
-            android:fillViewport="true"
-            android:paddingEnd="3dp"
-            android:paddingLeft="0dp"
-            android:paddingRight="3dp"
-            android:paddingStart="0dp">
+			<WebView
+				android:id="@+id/teaseWebView"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:autoLink="web|email"
+				android:clickable="false"
+				android:ems="10"
+				android:focusable="false"
+				android:inputType="textMultiLine"
+				android:linksClickable="true"
+				android:minLines="5"
+				android:textColor="#ffffff"
+				android:textIsSelectable="true"
+				android:textSize="12sp" />
+		</ScrollView>
 
-            <WebView
-                android:id="@+id/teaseWebView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autoLink="web|email"
-                android:clickable="false"
-                android:ems="10"
-                android:focusable="false"
-                android:inputType="textMultiLine"
-                android:linksClickable="true"
-                android:minLines="5"
-                android:textColor="#ffffff"
-                android:textIsSelectable="true"
-                android:textSize="12sp"/>
-        </ScrollView>
+		<LinearLayout
+			android:id="@+id/homeButtons"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/homeButtons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+			<Button
+				android:id="@+id/teaseButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:background="@drawable/rounded_rectangle"
+				android:clickable="true"
+				android:ellipsize="end"
+				android:focusable="true"
+				android:maxLines="1"
+				android:paddingBottom="3dp"
+				android:paddingLeft="3dp"
+				android:paddingRight="3dp"
+				android:paddingTop="3dp"
+				android:text="@string/none"
+				android:textColor="#ffffff"
+				android:textSize="14sp" />
 
-            <Button
-                android:id="@+id/teaseButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/rounded_rectangle"
-                android:clickable="true"
-                android:ellipsize="end"
-                android:focusable="true"
-                android:maxLines="1"
-                android:onClick="onTeaseButtonClicked"
-                android:paddingBottom="3dp"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:paddingTop="3dp"
-                android:text="@string/none"
-                android:textColor="#ffffff"
-                android:textSize="14sp"/>
+			<Button
+				android:id="@+id/settingsButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="5dp"
+				android:background="@drawable/rounded_rectangle"
+				android:clickable="true"
+				android:ellipsize="end"
+				android:focusable="true"
+				android:maxLines="1"
+				android:paddingBottom="3dp"
+				android:paddingLeft="3dp"
+				android:paddingRight="3dp"
+				android:paddingTop="3dp"
+				android:text="@string/settings"
+				android:textColor="#ffffff"
+				android:textSize="14sp" />
 
-            <Button
-                android:id="@+id/settingsButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/rounded_rectangle"
-                android:clickable="true"
-                android:ellipsize="end"
-                android:focusable="true"
-                android:maxLines="1"
-                android:onClick="onSettingsButtonClicked"
-                android:paddingBottom="3dp"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:paddingTop="3dp"
-                android:text="@string/settings"
-                android:textColor="#ffffff"
-                android:textSize="14sp"/>
+			<Button
+				android:id="@+id/downloadButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="5dp"
+				android:background="@drawable/rounded_rectangle"
+				android:clickable="true"
+				android:focusable="true"
+				android:maxLines="1"
+				android:paddingBottom="3dp"
+				android:paddingLeft="3dp"
+				android:paddingRight="3dp"
+				android:paddingTop="3dp"
+				android:text="@string/download"
+				android:textColor="#ffffff"
+				android:textSize="14sp" />
+		</LinearLayout>
 
-            <Button
-                android:id="@+id/downloadButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/rounded_rectangle"
-                android:clickable="true"
-                android:focusable="true"
-                android:maxLines="1"
-                android:onClick="onDownloadButtonClicked"
-                android:paddingBottom="3dp"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:paddingTop="3dp"
-                android:text="@string/download"
-                android:textColor="#ffffff"
-                android:textSize="14sp"/>
-        </LinearLayout>
+		<ScrollView
+			android:id="@+id/buttonScrollView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:fadeScrollbars="false">
 
-        <ScrollView
-            android:id="@+id/buttonScrollView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fadeScrollbars="false">
-
-            <LinearLayout
-                android:id="@+id/buttonsLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"/>
-        </ScrollView>
-
-    </LinearLayout>
-
+			<LinearLayout
+				android:id="@+id/buttonsLayout"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical" />
+		</ScrollView>
+	</LinearLayout>
 </LinearLayout>

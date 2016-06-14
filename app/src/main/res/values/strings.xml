@@ -20,6 +20,7 @@
     <string name="cancel">Cancel</string>
     <string name="getting_source">Getting source&#8230;</string>
     <string name="teases_dir">Teases directory</string>
+    <!-- Settings -->
     <string name="setting_eos">Endear on startup</string>
     <string name="setting_hpp">Home page picture</string>
     <string name="setting_ec">Enable cheats</string>
@@ -29,6 +30,7 @@
     <string name="setting_cheat_rs">Remove Save</string>
     <string name="setting_cheat_pp">Previous Page</string>
     <string name="setting_rlt">Remember last tease</string>
+    <string name="setting_ral">Remove all saves</string>
 
     <!-- Save Elements -->
     <string name="save_page">Page</string>

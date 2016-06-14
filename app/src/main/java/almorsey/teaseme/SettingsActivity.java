@@ -1,10 +1,13 @@
 package almorsey.teaseme;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -18,15 +21,19 @@ import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 import net.rdrei.android.dirchooser.DirectoryChooserFragment;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
+import static almorsey.teaseme.MainActivity.TAG;
 import static almorsey.teaseme.MainActivity.boolFromXmlElement;
 import static almorsey.teaseme.MainActivity.data;
+import static almorsey.teaseme.MainActivity.dataFile;
+import static almorsey.teaseme.MainActivity.saveDocument;
 import static almorsey.teaseme.MainActivity.stringFromCheckBox;
 
 public class SettingsActivity extends AppCompatActivity
 		implements View.OnClickListener, DirectoryChooserFragment.OnFragmentInteractionListener, CompoundButton.OnCheckedChangeListener{
 
-	private Button teasesDirButton, saveButton;
+	private Button teasesDirButton, saveButton, rasButton;
 	private EditText teasesDirEditText;
 	private CheckBox eosCheckBox, hppCheckBox, pidCheckBox, ptCheckBox, stCheckBox, rsCheckBox, ppCheckBox, rltCheckBox;
 	private Switch cheatsSwitch;
@@ -56,9 +63,11 @@ public class SettingsActivity extends AppCompatActivity
 		rsCheckBox = (CheckBox) findViewById(R.id.rsCheckBox);
 		ppCheckBox = (CheckBox) findViewById(R.id.ppCheckBox);
 		rltCheckBox = (CheckBox) findViewById(R.id.rltCheckBox);
+		rasButton = (Button) findViewById(R.id.rasButton);
 
 		teasesDirButton.setOnClickListener(this);
 		saveButton.setOnClickListener(this);
+		rasButton.setOnClickListener(this);
 		cheatsSwitch.setOnCheckedChangeListener(this);
 
 		teasesDirEditText.setText(MainActivity.TEASES_DIR);
@@ -81,6 +90,7 @@ public class SettingsActivity extends AppCompatActivity
 		if(v.equals(teasesDirButton)){
 			mDialog.show(getFragmentManager(), null);
 		}else if(v.equals(saveButton)){
+			Log.d(TAG, "onClick: ");
 			Element teaseDirE = (Element) data.getElementsByTagName(getString(R.string.root_settings_teasesDirectory)).item(0);
 			teaseDirE.setTextContent(teasesDirEditText.getText().toString());
 			Element eosE = (Element) data.getElementsByTagName(getString(R.string.root_settings_endearOnStartup)).item(0);
@@ -103,6 +113,28 @@ public class SettingsActivity extends AppCompatActivity
 			rltE.setAttribute("value", stringFromCheckBox(rltCheckBox));
 			MainActivity.saveDocument(data, MainActivity.dataFile);
 			Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+		}else if(v.equals(rasButton)){
+			DialogInterface.OnClickListener handler = new DialogInterface.OnClickListener(){
+				public void onClick(DialogInterface dialog, int which){
+					if(which == DialogInterface.BUTTON_POSITIVE){
+						Node s = data.getElementsByTagName(getString(R.string.root_saves)).item(0);
+						Log.d(TAG, "onClick: " + s);
+						Element root = (Element) data.getElementsByTagName(getString(R.string.root)).item(0);
+						root.removeChild(s);
+						Element saves = data.createElement(getString(R.string.root_saves));
+						root.appendChild(saves);
+						saveDocument(data, dataFile);
+						Toast.makeText(SettingsActivity.this, "All saves deleted", Toast.LENGTH_LONG).show();
+					}else dialog.dismiss();
+				}
+			};
+			AlertDialog dialog = new AlertDialog.Builder(SettingsActivity.this)//@formatter:off
+				.setTitle("Delete")
+				.setMessage("Are you sure you want to delete all saves?")
+				.setPositiveButton("Delete", handler)
+				.setNegativeButton("Cancel", handler)
+				.create();//@formatter:on
+			dialog.show();
 		}
 	}
 

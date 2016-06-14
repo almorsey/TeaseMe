@@ -62,14 +62,16 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-public class MainActivity extends Activity{
+import static almorsey.teaseme.R.id.downloadButton;
+
+public class MainActivity extends Activity implements View.OnClickListener{
 
 	/**
 	 * TEASES_DIR = directory where all teases are located
 	 * data = xml document including saves, setttings and misc info
 	 * dataFile = File object of @data xml file
 	 */
-	private static final String TAG = "almorsey";
+	static final String TAG = "almorsey";
 	private static final String TRUE = "true", FALSE = "false";
 	static String TEASES_DIR;
 	static Document data;
@@ -129,7 +131,7 @@ public class MainActivity extends Activity{
 	private LinearLayout buttonsLayout, cheats, homeButtons;
 	private MediaPlayer audioPlayer;
 	private ScrollView editTextScrollView;
-	private Button newDocButton, pauseTimerButton, skipTimerButton, pageIdViewButton, teaseButton, saveButton, removeSaveButton, prevPageButton;
+	private Button newDocButton, pauseTimerButton, skipTimerButton, pageIdViewButton, teaseButton, saveButton, removeSaveButton, prevPageButton, settingsButton;
 	private LinearLayout.LayoutParams noButtonsLayoutParams, yesButtonsLayoutParams;
 	private VideoView videoView;
 
@@ -234,6 +236,7 @@ public class MainActivity extends Activity{
 		timerTextView = (TextView) findViewById(R.id.timerTextView);
 		editTextScrollView = (ScrollView) findViewById(R.id.editTextScrollView);
 		newDocButton = (Button) findViewById(R.id.newDocButton);
+		settingsButton = (Button) findViewById(R.id.settingsButton);
 		timers = new HashMap<>();
 		fromPrevPageButton = false;
 		set = new ArrayList<>();
@@ -243,6 +246,16 @@ public class MainActivity extends Activity{
 		multiplePagesPattern = Pattern.compile("(\\w+)\\((\\d+)\\.\\.(\\d+)\\)");
 		audioPlayer = new MediaPlayer();
 
+		newDocButton.setOnClickListener(this);
+		imageView.setOnClickListener(this);
+		pauseTimerButton.setOnClickListener(this);
+		skipTimerButton.setOnClickListener(this);
+		pageIdViewButton.setOnClickListener(this);
+		teaseButton.setOnClickListener(this);
+		saveButton.setOnClickListener(this);
+		removeSaveButton.setOnClickListener(this);
+		prevPageButton.setOnClickListener(this);
+		settingsButton.setOnClickListener(this);
 		videoView.setOnTouchListener(new View.OnTouchListener(){
 			public boolean onTouch(View v, MotionEvent event){
 				imageView.callOnClick();
@@ -366,8 +379,7 @@ public class MainActivity extends Activity{
 	}
 
 	private void addTextToPage(Node child){
-		String text = child.getTextContent();
-		editText.loadData(surroundInBody(text), "text/html", "UTF-8");
+		editText.loadData(surroundInBody(child.getTextContent()), "text/html", "UTF-8");
 		editTextScrollView.setScrollY(0);
 	}
 
@@ -484,12 +496,14 @@ public class MainActivity extends Activity{
 			for(int i = 0; i < children.getLength(); i++){
 				Node child = children.item(i);
 				NamedNodeMap attrs = child.getAttributes();
-				Node ifSet = attrs.getNamedItem(getString(R.string.doc_ifSet));
-				Node ifNotSet = attrs.getNamedItem(getString(R.string.doc_ifNotSet));
-				if(ifSet != null) for(String ifSetPart : ifSet.getNodeValue().split("\\|"))
-					if(!set.contains(ifSetPart)) continue allChildren;
-				if(ifNotSet != null) for(String ifNotSetPart : ifNotSet.getNodeValue().split("\\|"))
-					if(set.contains(ifNotSetPart)) continue allChildren;
+				if(attrs != null){
+					Node ifSet = attrs.getNamedItem(getString(R.string.doc_ifSet));
+					Node ifNotSet = attrs.getNamedItem(getString(R.string.doc_ifNotSet));
+					if(ifSet != null) for(String ifSetPart : ifSet.getNodeValue().split("\\|"))
+						if(!set.contains(ifSetPart)) continue allChildren;
+					if(ifNotSet != null) for(String ifNotSetPart : ifNotSet.getNodeValue().split("\\|"))
+						if(set.contains(ifNotSetPart)) continue allChildren;
+				}
 				if(child.getNodeName().equals(getString(R.string.doc_image))) addImageToPage(attrs);
 				if(child.getNodeName().equals(getString(R.string.doc_video))) addVideoToPage(attrs);
 				if(child.getNodeName().equals(getString(R.string.doc_text))) addTextToPage(child);
@@ -555,7 +569,21 @@ public class MainActivity extends Activity{
 		timers.clear();
 	}
 
-	public void onMediaViewButtonClicked(View v){
+	public void onClick(View v){
+		if(v.equals(imageView) || v.equals(videoView)) onMediaViewButtonClicked();
+		else if(v.equals(teaseButton)) onTeaseButtonClicked();
+		else if(v.equals(skipTimerButton)) onSkipTimerButtonClicked();
+		else if(v.equals(settingsButton)) onSettingsButtonClicked();
+		else if(v.equals(pauseTimerButton)) onPauseTimerButtonClicked();
+		else if(v.equals(pageIdViewButton)) onPageIdViewButtonClicked();
+		else if(v.equals(saveButton)) onSaveButtonClicked();
+		else if(v.equals(removeSaveButton)) onRemoveSaveButtonClicked();
+		else if(v.equals(prevPageButton)) onPrevPageButtonClicked();
+		else if(v.equals(downloadButton)) onDownloadButtonClicked();
+		else if(v.equals(newDocButton)) onNewDocButtonClicked();
+	}
+
+	private void onMediaViewButtonClicked(){
 		if(newDocButton.getVisibility() == Button.INVISIBLE){
 			newDocButton.setVisibility(Button.VISIBLE);
 			if(boolFromXmlElement(getString(R.string.root_settings_cheats))) cheats.setVisibility(LinearLayout.VISIBLE);
@@ -565,7 +593,7 @@ public class MainActivity extends Activity{
 		}
 	}
 
-	public void onTeaseButtonClicked(View v){
+	private void onTeaseButtonClicked(){
 		final Dialog dialog = new Dialog(this);
 		dialog.setContentView(R.layout.dialog_xml_chooser);
 		final LinearLayout textViewsLayout = (LinearLayout) dialog.findViewById(R.id.textViewsLayout);
@@ -595,7 +623,7 @@ public class MainActivity extends Activity{
 						public boolean onLongClick(View v){
 							DialogInterface.OnClickListener handler = new DialogInterface.OnClickListener(){
 								public void onClick(DialogInterface dialog, int which){
-									if(which == -1){
+									if(which == DialogInterface.BUTTON_POSITIVE){
 										Document doc1 = openDocument(TEASES_DIR + fileButton.getText().toString());
 										if(doc1 != null){
 											deleteFile(new File(TEASES_DIR + doc1.getElementsByTagName(getString(R.string.doc_mediaDirectory)).item(0).getTextContent
@@ -640,17 +668,17 @@ public class MainActivity extends Activity{
 		dialog.show();
 	}
 
-	public void onSkipTimerButtonClicked(View v){
+	private void onSkipTimerButtonClicked(){
 		setPage(timerTarget);
 	}
 
-	public void onSettingsButtonClicked(View v){
+	private void onSettingsButtonClicked(){
 		Intent intent = new Intent(this, SettingsActivity.class);
 		startActivity(intent);
 
 	}
 
-	public void onPauseTimerButtonClicked(View v){
+	private void onPauseTimerButtonClicked(){
 		if(pauseTimerButton.getText().toString().equals(getString(R.string.pause_timer))){
 			pauseTimerButton.setText(R.string.resume_timer);
 			if(timers.get("wait") != null && timers.get("update") != null){
@@ -682,7 +710,7 @@ public class MainActivity extends Activity{
 		}
 	}
 
-	public void onPageIdViewButtonClicked(View v){
+	private void onPageIdViewButtonClicked(){
 		NodeList pages = doc.getElementsByTagName(getString(R.string.doc_page));
 		pauseTimerButton.callOnClick();
 		final Dialog dialog = new Dialog(this);
@@ -727,7 +755,7 @@ public class MainActivity extends Activity{
 		});
 	}
 
-	public void onSaveButtonClicked(View v){
+	private void onSaveButtonClicked(){
 		Element saves = (Element) data.getElementsByTagName(getString(R.string.root_saves)).item(0);
 		Node node;
 		if((node = data.getElementById(md5(teaseButton.getText().toString()))) != null) saves.removeChild(node);
@@ -751,14 +779,14 @@ public class MainActivity extends Activity{
 		saveButton.setTag("manual");
 	}
 
-	public void onRemoveSaveButtonClicked(View v){
+	private void onRemoveSaveButtonClicked(){
 		Element saves = (Element) data.getElementsByTagName(getString(R.string.root_saves)).item(0);
 		Node node;
 		if((node = data.getElementById(md5(teaseButton.getText().toString()))) != null) saves.removeChild(node);
 		Toast.makeText(this, "Removed Save", Toast.LENGTH_SHORT).show();
 	}
 
-	public void onPrevPageButtonClicked(View v){
+	private void onPrevPageButtonClicked(){
 		Page prevPage = prevPages.remove(prevPages.size() - 1);
 		if(prevPages.size() == 0) prevPageButton.setEnabled(false);
 		set = prevPage.getSets();
@@ -766,12 +794,12 @@ public class MainActivity extends Activity{
 		setPage(prevPage.getId());
 	}
 
-	public void onDownloadButtonClicked(View v){
+	private void onDownloadButtonClicked(){
 		Intent intent = new Intent(this, DownloadActivity.class);
 		startActivity(intent);
 	}
 
-	public void onNewDocButtonClicked(View v){
+	private void onNewDocButtonClicked(){
 		if(doc != null && homeButtons.getVisibility() != EditText.GONE){ // HOME
 			homeButtons.setVisibility(EditText.GONE);
 			mediaDir = TEASES_DIR + doc.getElementsByTagName(getString(R.string.doc_mediaDirectory)).item(0).getTextContent() + "/";
@@ -812,7 +840,7 @@ public class MainActivity extends Activity{
 			deleteTimers();
 			timerTextView.setVisibility(TextView.GONE);
 		}else{
-			doc = openDocument(TEASES_DIR + teaseButton.getText().toString());
+			doc = openDocument(TEASES_DIR + teaseButton.getText().toString() + ".xml");
 			if(doc != null) newDocButton.callOnClick();
 			else Toast.makeText(this, "No tease selected", Toast.LENGTH_SHORT).show();
 		}
@@ -898,8 +926,8 @@ public class MainActivity extends Activity{
 	private void makeFullscreen(){
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		getWindow().getDecorView()
-		           .setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View
+		getWindow().getDecorView().setSystemUiVisibility(
+				View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View
 						.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 	}
 
