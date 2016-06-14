@@ -38,21 +38,17 @@
 
 		<Button
 			android:id="@+id/newDocButton"
-			android:layout_width="60dp"
-			android:layout_height="50dp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
 			android:layout_alignParentBottom="true"
 			android:layout_alignParentEnd="false"
 			android:layout_alignParentLeft="false"
 			android:layout_alignParentRight="false"
 			android:layout_alignParentStart="false"
-			android:layout_marginBottom="10dp"
-			android:layout_marginLeft="10dp"
-			android:layout_marginStart="10dp"
-			android:background="@drawable/circle_button"
 			android:checked="false"
 			android:text="@string/start"
-			android:textColor="#e8e8e8"
-			android:textSize="17sp" />
+			android:textAllCaps="false"
+			android:textColor="#e8e8e8" />
 
 		<LinearLayout
 			android:id="@+id/cheats"
@@ -69,21 +65,24 @@
 				style="?android:attr/buttonStyleSmall"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="" />
+				android:text=""
+				android:textAllCaps="false" />
 
 			<Button
 				android:id="@+id/pauseTimerButton"
 				style="?android:attr/buttonStyleSmall"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@string/pause_timer" />
+				android:text="@string/pause_timer"
+				android:textAllCaps="false" />
 
 			<Button
 				android:id="@+id/skipTimerButton"
 				style="?android:attr/buttonStyleSmall"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@string/skip_timer" />
+				android:text="@string/skip_timer"
+				android:textAllCaps="false" />
 
 			<Button
 				android:id="@+id/saveButton"
@@ -91,6 +90,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/save"
+				android:textAllCaps="false"
 				android:visibility="gone" />
 
 			<Button
@@ -98,24 +98,22 @@
 				style="?android:attr/buttonStyleSmall"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@string/unsave" />
+				android:text="@string/unsave"
+				android:textAllCaps="false" />
 
 			<Button
 				android:id="@+id/prevPageButton"
 				style="?android:attr/buttonStyleSmall"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@string/prev_page" />
+				android:text="@string/prev_page"
+				android:textAllCaps="false" />
 		</LinearLayout>
 	</RelativeLayout>
 
 	<LinearLayout
 		android:layout_width="0dp"
 		android:layout_height="match_parent"
-		android:layout_marginBottom="5dp"
-		android:layout_marginLeft="5dp"
-		android:layout_marginRight="5dp"
-		android:layout_marginTop="5dp"
 		android:layout_weight=".25"
 		android:orientation="vertical">
 
@@ -131,7 +129,7 @@
 		<ScrollView
 			android:id="@+id/editTextScrollView"
 			android:layout_width="match_parent"
-			android:layout_height="250dp"
+			android:layout_height="270dp"
 			android:fadeScrollbars="false"
 			android:fillViewport="true"
 			android:paddingEnd="3dp"
@@ -165,53 +163,36 @@
 				android:id="@+id/teaseButton"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:background="@drawable/rounded_rectangle"
 				android:clickable="true"
 				android:ellipsize="end"
 				android:focusable="true"
 				android:maxLines="1"
-				android:paddingBottom="3dp"
-				android:paddingLeft="3dp"
-				android:paddingRight="3dp"
-				android:paddingTop="3dp"
 				android:text="@string/none"
-				android:textColor="#ffffff"
-				android:textSize="14sp" />
+				android:textAllCaps="false"
+				android:textColor="#ffffff" />
 
 			<Button
 				android:id="@+id/settingsButton"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginTop="5dp"
-				android:background="@drawable/rounded_rectangle"
 				android:clickable="true"
 				android:ellipsize="end"
 				android:focusable="true"
 				android:maxLines="1"
-				android:paddingBottom="3dp"
-				android:paddingLeft="3dp"
-				android:paddingRight="3dp"
-				android:paddingTop="3dp"
 				android:text="@string/settings"
-				android:textColor="#ffffff"
-				android:textSize="14sp" />
+				android:textAllCaps="false"
+				android:textColor="#ffffff" />
 
 			<Button
 				android:id="@+id/downloadButton"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginTop="5dp"
-				android:background="@drawable/rounded_rectangle"
 				android:clickable="true"
 				android:focusable="true"
 				android:maxLines="1"
-				android:paddingBottom="3dp"
-				android:paddingLeft="3dp"
-				android:paddingRight="3dp"
-				android:paddingTop="3dp"
 				android:text="@string/download"
-				android:textColor="#ffffff"
-				android:textSize="14sp" />
+				android:textAllCaps="false"
+				android:textColor="#ffffff" />
 		</LinearLayout>
 
 		<ScrollView

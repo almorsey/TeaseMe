@@ -25,7 +25,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:text="@string/teases_dir"
-            android:textAllCaps="false"/>
+            android:textAllCaps="false"
+            />
 
         <EditText
             android:id="@+id/teasesDirEditText"
@@ -52,10 +53,18 @@
             android:layout_below="@+id/teasesDirEditText"
             android:text="@string/setting_hpp"/>
 
+        <CheckBox
+            android:id="@+id/rltCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/eosCheckBox"
+            android:text="@string/setting_rlt" />
+
         <View
             android:id="@+id/divider_above_cheats"
             style="@style/Divider"
-            android:layout_below="@id/hppCheckBox"
+            android:layout_below="@+id/rltCheckBox"
             />
 
         <Switch
@@ -132,14 +141,6 @@
             style="@style/Divider"
             android:layout_below="@id/cheatsGidLayout"/>
 
-        <CheckBox
-            android:id="@+id/rltCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/divider_below_cheats"
-            android:text="@string/setting_rlt"/>
-
     </RelativeLayout>
 
     <Button
@@ -149,7 +150,8 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/relativeLayout"
         android:text="@string/setting_ral"
-        android:textAllCaps="false" />
+        android:textAllCaps="false"
+        />
 
     <Button
         android:id="@+id/saveButton"

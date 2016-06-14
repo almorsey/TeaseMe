@@ -62,8 +62,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import static almorsey.teaseme.R.id.downloadButton;
-
 public class MainActivity extends Activity implements View.OnClickListener{
 
 	/**
@@ -128,10 +126,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
 	private TextView timerTextView;
 	private ImageView imageView;
 	private WebView editText;
-	private LinearLayout buttonsLayout, cheats, homeButtons;
+	private LinearLayout buttonsLayout, cheats, homeButtons, noStorageLayout;
 	private MediaPlayer audioPlayer;
 	private ScrollView editTextScrollView;
-	private Button newDocButton, pauseTimerButton, skipTimerButton, pageIdViewButton, teaseButton, saveButton, removeSaveButton, prevPageButton, settingsButton;
+	private Button newDocButton, pauseTimerButton, skipTimerButton, pageIdViewButton, teaseButton, saveButton, removeSaveButton, prevPageButton, settingsButton,
+			downloadButton;
 	private LinearLayout.LayoutParams noButtonsLayoutParams, yesButtonsLayoutParams;
 	private VideoView videoView;
 
@@ -190,7 +189,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		setContentView(R.layout.activity_main);
 		initVars();
 		setupDataFile();
-		startupActions();
+		if(data != null) startupActions();
+		else setContentView(noStorageLayout);
 	}
 
 	private void startupActions(){
@@ -231,6 +231,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		pageIdViewButton = (Button) findViewById(R.id.pageIdViewButton);
 		saveButton = (Button) findViewById(R.id.saveButton);
 		removeSaveButton = (Button) findViewById(R.id.removeSaveButton);
+		downloadButton = (Button) findViewById(R.id.downloadButton);
 		prevPageButton = (Button) findViewById(R.id.prevPageButton);
 		buttonsLayout = (LinearLayout) findViewById(R.id.buttonsLayout);
 		timerTextView = (TextView) findViewById(R.id.timerTextView);
@@ -242,9 +243,16 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		set = new ArrayList<>();
 		prevPages = new ArrayList<>();
 		noButtonsLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-		yesButtonsLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(250));
+		yesButtonsLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(270));
 		multiplePagesPattern = Pattern.compile("(\\w+)\\((\\d+)\\.\\.(\\d+)\\)");
 		audioPlayer = new MediaPlayer();
+		noStorageLayout = new LinearLayout(this);
+		delayStyle = "";
+
+		noStorageLayout.setBackgroundColor(getColor(R.color.colorPrimary));
+		TextView tv = new TextView(this);
+		tv.setText(R.string.no_storage_perms);
+		noStorageLayout.addView(tv, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
 		newDocButton.setOnClickListener(this);
 		imageView.setOnClickListener(this);
@@ -255,6 +263,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		saveButton.setOnClickListener(this);
 		removeSaveButton.setOnClickListener(this);
 		prevPageButton.setOnClickListener(this);
+		downloadButton.setOnClickListener(this);
 		settingsButton.setOnClickListener(this);
 		videoView.setOnTouchListener(new View.OnTouchListener(){
 			public boolean onTouch(View v, MotionEvent event){
@@ -280,80 +289,82 @@ public class MainActivity extends Activity implements View.OnClickListener{
 			Log.e(TAG, "onCreate: ", e);
 		}
 		data = openDocument(dataFile.toString());
-		Element root = (Element) data.getElementsByTagName(getString(R.string.root)).item(0);
-		if(root.getElementsByTagName(getString(R.string.root_saves)).getLength() == 0){
-			Element saves = data.createElement(getString(R.string.root_saves));
-			root.appendChild(saves);
-		}
-		if(root.getElementsByTagName(getString(R.string.root_settings)).getLength() == 0){
-			Element settings = data.createElement(getString(R.string.root_settings));
-			root.appendChild(settings);
-		}
-		Element settings = (Element) root.getElementsByTagName(getString(R.string.root_settings)).item(0);
-		{
-			if(settings.getElementsByTagName(getString(R.string.root_settings_teasesDirectory)).getLength() == 0){
-				Element teaseDir = data.createElement(getString(R.string.root_settings_teasesDirectory));
-				teaseDir.setTextContent(Environment.getExternalStorageDirectory().toString() + "/Teases/");
-				settings.appendChild(teaseDir);
+		if(data != null){
+			Element root = (Element) data.getElementsByTagName(getString(R.string.root)).item(0);
+			if(root.getElementsByTagName(getString(R.string.root_saves)).getLength() == 0){
+				Element saves = data.createElement(getString(R.string.root_saves));
+				root.appendChild(saves);
 			}
-			if(settings.getElementsByTagName(getString(R.string.root_settings_endearOnStartup)).getLength() == 0){
-				Element eos = data.createElement(getString(R.string.root_settings_endearOnStartup));
-				eos.setAttribute("value", "true");
-				settings.appendChild(eos);
+			if(root.getElementsByTagName(getString(R.string.root_settings)).getLength() == 0){
+				Element settings = data.createElement(getString(R.string.root_settings));
+				root.appendChild(settings);
 			}
-			if(settings.getElementsByTagName(getString(R.string.root_settings_homePagePicture)).getLength() == 0){
-				Element hpp = data.createElement(getString(R.string.root_settings_homePagePicture));
-				hpp.setAttribute("value", "true");
-				settings.appendChild(hpp);
-			}
-			if(settings.getElementsByTagName(getString(R.string.root_settings_rememberLastTease)).getLength() == 0){
-				Element rlt = data.createElement(getString(R.string.root_settings_rememberLastTease));
-				rlt.setAttribute("value", "true");
-				settings.appendChild(rlt);
-			}
-			if(settings.getElementsByTagName(getString(R.string.root_settings_cheats)).getLength() == 0){
-				Element cheats = data.createElement(getString(R.string.root_settings_cheats));
-				cheats.setAttribute("value", "true");
-				settings.appendChild(cheats);
-			}
-			Element cheats = (Element) data.getElementsByTagName(getString(R.string.root_settings_cheats)).item(0);
+			Element settings = (Element) root.getElementsByTagName(getString(R.string.root_settings)).item(0);
 			{
-				if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_pageID)).getLength() == 0){
-					Element pid = data.createElement(getString(R.string.root_settings_cheats_pageID));
-					pid.setAttribute("value", "true");
-					cheats.appendChild(pid);
+				if(settings.getElementsByTagName(getString(R.string.root_settings_teasesDirectory)).getLength() == 0){
+					Element teaseDir = data.createElement(getString(R.string.root_settings_teasesDirectory));
+					teaseDir.setTextContent(Environment.getExternalStorageDirectory().toString() + "/Teases/");
+					settings.appendChild(teaseDir);
 				}
-				if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_pauseTimer)).getLength() == 0){
-					Element pt = data.createElement(getString(R.string.root_settings_cheats_pauseTimer));
-					pt.setAttribute("value", "true");
-					cheats.appendChild(pt);
+				if(settings.getElementsByTagName(getString(R.string.root_settings_endearOnStartup)).getLength() == 0){
+					Element eos = data.createElement(getString(R.string.root_settings_endearOnStartup));
+					eos.setAttribute("value", "true");
+					settings.appendChild(eos);
 				}
-				if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_skipTimer)).getLength() == 0){
-					Element st = data.createElement(getString(R.string.root_settings_cheats_skipTimer));
-					st.setAttribute("value", "true");
-					cheats.appendChild(st);
+				if(settings.getElementsByTagName(getString(R.string.root_settings_homePagePicture)).getLength() == 0){
+					Element hpp = data.createElement(getString(R.string.root_settings_homePagePicture));
+					hpp.setAttribute("value", "true");
+					settings.appendChild(hpp);
 				}
-				if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_removeSave)).getLength() == 0){
-					Element rs = data.createElement(getString(R.string.root_settings_cheats_removeSave));
-					rs.setAttribute("value", "true");
-					cheats.appendChild(rs);
+				if(settings.getElementsByTagName(getString(R.string.root_settings_rememberLastTease)).getLength() == 0){
+					Element rlt = data.createElement(getString(R.string.root_settings_rememberLastTease));
+					rlt.setAttribute("value", "true");
+					settings.appendChild(rlt);
 				}
-				if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_prevPage)).getLength() == 0){
-					Element pp = data.createElement(getString(R.string.root_settings_cheats_prevPage));
-					pp.setAttribute("value", "true");
-					cheats.appendChild(pp);
+				if(settings.getElementsByTagName(getString(R.string.root_settings_cheats)).getLength() == 0){
+					Element cheats = data.createElement(getString(R.string.root_settings_cheats));
+					cheats.setAttribute("value", "true");
+					settings.appendChild(cheats);
+				}
+				Element cheats = (Element) data.getElementsByTagName(getString(R.string.root_settings_cheats)).item(0);
+				{
+					if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_pageID)).getLength() == 0){
+						Element pid = data.createElement(getString(R.string.root_settings_cheats_pageID));
+						pid.setAttribute("value", "true");
+						cheats.appendChild(pid);
+					}
+					if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_pauseTimer)).getLength() == 0){
+						Element pt = data.createElement(getString(R.string.root_settings_cheats_pauseTimer));
+						pt.setAttribute("value", "true");
+						cheats.appendChild(pt);
+					}
+					if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_skipTimer)).getLength() == 0){
+						Element st = data.createElement(getString(R.string.root_settings_cheats_skipTimer));
+						st.setAttribute("value", "true");
+						cheats.appendChild(st);
+					}
+					if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_removeSave)).getLength() == 0){
+						Element rs = data.createElement(getString(R.string.root_settings_cheats_removeSave));
+						rs.setAttribute("value", "true");
+						cheats.appendChild(rs);
+					}
+					if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_prevPage)).getLength() == 0){
+						Element pp = data.createElement(getString(R.string.root_settings_cheats_prevPage));
+						pp.setAttribute("value", "true");
+						cheats.appendChild(pp);
+					}
 				}
 			}
-		}
-		if(root.getElementsByTagName(getString(R.string.root_misc)).getLength() == 0){
-			Element misc = data.createElement(getString(R.string.root_misc));
-			root.appendChild(misc);
-		}
-		Element misc = (Element) data.getElementsByTagName(getString(R.string.root_misc)).item(0);
-		if(misc.getElementsByTagName(getString(R.string.root_misc_lastTease)).getLength() == 0){
-			Element lastTease = data.createElement(getString(R.string.root_misc_lastTease));
-			lastTease.setTextContent("");
-			misc.appendChild(lastTease);
+			if(root.getElementsByTagName(getString(R.string.root_misc)).getLength() == 0){
+				Element misc = data.createElement(getString(R.string.root_misc));
+				root.appendChild(misc);
+			}
+			Element misc = (Element) data.getElementsByTagName(getString(R.string.root_misc)).item(0);
+			if(misc.getElementsByTagName(getString(R.string.root_misc_lastTease)).getLength() == 0){
+				Element lastTease = data.createElement(getString(R.string.root_misc_lastTease));
+				lastTease.setTextContent("");
+				misc.appendChild(lastTease);
+			}
 		}
 	}
 
@@ -476,7 +487,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
 			pauseTimerButton.setEnabled(false);
 			pauseTimerButton.setText(R.string.pause_timer);
 			pageIdViewButton.setText(pageID);
-			Log.d(TAG, currentPageId);
 			if(!currentPageId.equals("") && !fromPrevPageButton){
 				prevPages.add(new Page(currentPageId, set));
 				prevPageButton.setEnabled(true);
@@ -624,18 +634,18 @@ public class MainActivity extends Activity implements View.OnClickListener{
 							DialogInterface.OnClickListener handler = new DialogInterface.OnClickListener(){
 								public void onClick(DialogInterface dialog, int which){
 									if(which == DialogInterface.BUTTON_POSITIVE){
-										Document doc1 = openDocument(TEASES_DIR + fileButton.getText().toString());
+										File docF = new File(TEASES_DIR + fileButton.getText().toString() + ".xml");
+										Document doc1 = openDocument(docF.getAbsolutePath());
 										if(doc1 != null){
 											deleteFile(new File(TEASES_DIR + doc1.getElementsByTagName(getString(R.string.doc_mediaDirectory)).item(0).getTextContent
 													()));
-											deleteFile(new File(TEASES_DIR + fileButton.getText().toString()));
+											deleteFile(docF);
 											Node node;
 											if((node = data.getElementById(md5(teaseButton.getText().toString()))) != null)
 												data.getElementsByTagName(getString(R.string.root_saves)).item(0).removeChild(node);
 											if(teaseButton.getText().equals(fileButton.getText())) teaseButton.setText(R.string.none);
 											textViewsLayout.removeView(fileButton);
-										}else Toast.makeText(MainActivity.this, "Could not delete media folder of '" + fileButton.getText() + "'", Toast.LENGTH_LONG)
-										           .show();
+										}else Toast.makeText(MainActivity.this, "Could not delete '" + fileButton.getText() + "'", Toast.LENGTH_LONG).show();
 									}else dialog.dismiss();
 								}
 							};//@formatter:off
@@ -649,7 +659,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 							return false;
 						}
 					});
-					if(teaseButton.getText().toString().equals(file.getName())) current = true;
+					if((teaseButton.getText().toString() + ".xml").equals(file.getName())) current = true;
 					if(!current) scrollY++;
 					LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 					                                                                       LinearLayout.LayoutParams.MATCH_PARENT);
@@ -712,7 +722,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
 	private void onPageIdViewButtonClicked(){
 		NodeList pages = doc.getElementsByTagName(getString(R.string.doc_page));
-		pauseTimerButton.callOnClick();
+		if(!timerTarget.equals("")) pauseTimerButton.callOnClick();
 		final Dialog dialog = new Dialog(this);
 		dialog.setContentView(R.layout.dialog_xml_chooser);
 		LinearLayout textViewsLayout = (LinearLayout) dialog.findViewById(R.id.textViewsLayout);
@@ -743,7 +753,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		if(!current) scrollY = 0;
 		dialog.setOnCancelListener(new DialogInterface.OnCancelListener(){
 			public void onCancel(DialogInterface dialog){
-				pauseTimerButton.callOnClick();
+				if(!timerTarget.equals("")) pauseTimerButton.callOnClick();
 			}
 		});
 		dialog.show();
@@ -800,8 +810,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
 	}
 
 	private void onNewDocButtonClicked(){
-		if(doc != null && homeButtons.getVisibility() != EditText.GONE){ // HOME
-			homeButtons.setVisibility(EditText.GONE);
+		if(doc != null && homeButtons.getVisibility() != EditText.GONE){ // Home to Tease
+			homeButtons.setVisibility(View.GONE);
 			mediaDir = TEASES_DIR + doc.getElementsByTagName(getString(R.string.doc_mediaDirectory)).item(0).getTextContent() + "/";
 			Node n;
 			if((n = doc.getElementsByTagName(getString(R.string.doc_autoSetPageWhenSeen)).item(0)) != null) autoSetPageWhenSeen = n.getTextContent().equals("true");
@@ -819,7 +829,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 				if(prevPages.size() > 0) prevPageButton.setEnabled(true);
 				setPage(element.getElementsByTagName(getString(R.string.save_page)).item(0).getTextContent());
 			}else setPage("start");
-		}else if(doc != null){ // IN TEASE
+		}else if(doc != null){ // Tease to Home
 			doc = null;
 			homeButtons.setVisibility(EditText.VISIBLE);
 			changeNewDocButton("start|stop");
