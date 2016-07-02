@@ -230,7 +230,7 @@ public class DownloadActivity extends AppCompatActivity{
 			elements.add(y);
 			Element n = doc.createElement("Button");
 			n.setTextContent("No");
-			n.setAttribute("target", evalTarget(action.substring(index + 5, action.length())));
+			n.setAttribute("target", evalTarget(action.substring(index + 4, action.length())));
 			elements.add(n);
 		}
 		if(style.equals("delay")){
