@@ -12,6 +12,9 @@
 	<string name="prev_page">Prev Page</string>
 	<string name="settings">Settings</string>
 	<string name="download">Download</string>
+	<string name="flash_tease">Flash Tease</string>
+	<string name="regular_tease">Regular Tease</string>
+	<string name="id">ID</string>
 	<string name="_new">New</string>
 	<string name="url" translatable="false">URL</string>
 	<string name="save_resources">Save Resources</string>

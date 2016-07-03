@@ -13,23 +13,6 @@
         android:elevation="4dp">
     </android.support.v7.widget.Toolbar>
 
-    <ScrollView
-        android:id="@+id/outputScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignEnd="@+id/progressBar"
-        android:layout_alignRight="@+id/progressBar"
-        android:layout_below="@+id/progressBar"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp">
-
-        <TextView
-            android:id="@+id/outputTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </ScrollView>
-
     <EditText
         android:id="@+id/urlEditText"
         android:layout_width="match_parent"
@@ -38,38 +21,82 @@
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:ems="10"
         android:hint="@string/url"
-        android:imeOptions="actionGo"
         android:inputType="textUri"
         android:maxLines="1"/>
 
-    <Button
-        android:id="@+id/downloadButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/urlEditText"
-        android:layout_below="@+id/urlEditText"
-        android:onClick="startDownload"
-        android:text="@string/download"/>
+	<ProgressBar
+		android:id="@+id/progressBar"
+		style="?android:attr/progressBarStyleHorizontal"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/saveResourcesCheckBox"
+		android:layout_margin="10dp"
+		/>
 
-    <CheckBox
-        android:id="@+id/saveResourcesCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/downloadButton"
-        android:layout_alignBottom="@+id/downloadButton"
-        android:layout_alignStart="@+id/urlEditText"
-        android:checked="true"
-        android:text="@string/save_resources"/>
+	<RadioGroup
+		android:id="@+id/teaseTypeRadioGroup"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignStart="@+id/urlEditText"
+		android:layout_below="@+id/urlEditText">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/saveResourcesCheckBox"
-        android:layout_margin="10dp"
-        />
+		<RadioButton
+			android:id="@+id/regularTeaseRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/regular_tease" />
 
+		<RadioButton
+			android:id="@+id/flashTeaseRadioButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignStart="@+id/regularTeaseRadioButton"
+			android:layout_below="@+id/regularTeaseRadioButton"
+			android:text="@string/flash_tease" />
+	</RadioGroup>
+
+	<CheckBox
+		android:id="@+id/saveResourcesCheckBox"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignBaseline="@+id/downloadButton"
+		android:layout_alignBottom="@+id/downloadButton"
+		android:layout_alignStart="@+id/progressBar"
+		android:checked="true"
+		android:text="@string/save_resources" />
+
+	<EditText
+		android:id="@+id/idEditText"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_above="@+id/downloadButton"
+		android:layout_alignEnd="@+id/downloadButton"
+		android:layout_alignStart="@+id/downloadButton"
+		android:layout_marginBottom="10dp"
+		android:ems="10"
+		android:hint="@string/id"
+		android:inputType="number" />
+
+	<ScrollView
+		android:id="@+id/outputScrollView"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_alignStart="@+id/progressBar"
+		android:layout_below="@+id/progressBar"
+		android:layout_marginLeft="10dp">
+
+		<TextView
+			android:id="@+id/outputTextView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content" />
+	</ScrollView>
+
+	<Button
+		android:id="@+id/downloadButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignEnd="@+id/progressBar"
+		android:layout_below="@+id/teaseTypeRadioGroup"
+		android:text="@string/download" />
 </RelativeLayout>

@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -12,6 +14,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -47,18 +51,24 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-public class DownloadActivity extends AppCompatActivity{
+public class DownloadActivity extends AppCompatActivity implements View.OnClickListener, View.OnKeyListener, RadioGroup.OnCheckedChangeListener{
 	private final String TAG = "almorsey";
+	private final String regualrTeaseStart = "https://milovana.com/webteases/showtease.php?id=", flashTeaseStart = "https://milovana.com/webteases/showflash.php?id=";
 	private ASyncGet docsGet;
-	private boolean cancelled = false;
+	private boolean cancelled = false, autoUpdatingRadioGroup = false, updatingUrlTextFromIdText = false, updatingRadioGroupFromIdText = false, autoUpdatingUrlText
+			= false, updatingIdTextFromUrlText = false;
 	private Document doc;
 	private String teaseTitle = "";
+	private String[] urlParts = {"", ""};
+
 	private ArrayList<ResourceDownloader> rds = new ArrayList<>();
-	private EditText urlEditText;
+	private EditText urlEditText, idEditText;
 	private CheckBox saveResourcesCheckBox;
-	private Button button;
+	private Button downloadButton;
 	private ScrollView outputScrollView;
 	private TextView outputTextView;
+	private RadioButton flashTeaseRadioButton, regularTeaseRadioButton;
+	private RadioGroup teaseTypeRadioGroup;
 	private ProgressBar progressBar;
 	private Pattern buttonsPattern = Pattern.compile("target\\d+:(.+?)#,cap\\d+:\"(.+?)\"");
 
@@ -73,21 +83,105 @@ public class DownloadActivity extends AppCompatActivity{
 		if(actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
 
 		urlEditText = (EditText) findViewById(R.id.urlEditText);
+		idEditText = (EditText) findViewById(R.id.idEditText);
+		flashTeaseRadioButton = (RadioButton) findViewById(R.id.flashTeaseRadioButton);
+		regularTeaseRadioButton = (RadioButton) findViewById(R.id.regularTeaseRadioButton);
 		saveResourcesCheckBox = (CheckBox) findViewById(R.id.saveResourcesCheckBox);
-		button = (Button) findViewById(R.id.downloadButton);
+		downloadButton = (Button) findViewById(R.id.downloadButton);
 		outputTextView = (TextView) findViewById(R.id.outputTextView);
 		outputScrollView = (ScrollView) findViewById(R.id.outputScrollView);
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
+		teaseTypeRadioGroup = (RadioGroup) findViewById(R.id.teaseTypeRadioGroup);
 
-		urlEditText.setOnKeyListener(new View.OnKeyListener(){
-			public boolean onKey(View v, int keyCode, KeyEvent event){
-				if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER){
-					startDownload(v);
-					return true;
+		teaseTypeRadioGroup.setOnCheckedChangeListener(this);
+		urlEditText.setOnKeyListener(this);
+		urlEditText.addTextChangedListener(new TextWatcher(){
+			public void beforeTextChanged(CharSequence s, int start, int count, int after){}
+
+			public void onTextChanged(CharSequence s, int start, int before, int count){}
+
+			public void afterTextChanged(Editable s){
+				String text = s.toString();
+				String id = "";
+				if(text.startsWith(regualrTeaseStart)){
+					teaseTypeRadioGroup.check(regularTeaseRadioButton.getId());
+					id = text.substring(regualrTeaseStart.length());
+				}else if(text.startsWith(flashTeaseStart)){
+					teaseTypeRadioGroup.check(flashTeaseRadioButton.getId());
+					id = text.substring(regualrTeaseStart.length());
+				}else{
+					autoUpdatingRadioGroup = true;
+					teaseTypeRadioGroup.clearCheck();
+					updatingIdTextFromUrlText = true;
+					idEditText.setText("");
+					autoUpdatingRadioGroup = false;
+					updatingIdTextFromUrlText = false;
 				}
-				return false;
+				if(id.matches("\\d+") && !updatingUrlTextFromIdText) idEditText.setText(text.substring(flashTeaseStart.length()));
+				updatingUrlTextFromIdText = false;
+				if(autoUpdatingUrlText){
+					autoUpdatingUrlText = false;
+					urlEditText.setSelection(urlEditText.getText().length());
+				}
 			}
 		});
+		idEditText.addTextChangedListener(new TextWatcher(){
+			public void beforeTextChanged(CharSequence s, int start, int count, int after){}
+
+			public void onTextChanged(CharSequence s, int start, int before, int count){}
+
+			public void afterTextChanged(Editable s){
+				urlParts[1] = s.toString();
+				int checked = teaseTypeRadioGroup.getCheckedRadioButtonId();
+				if(checked != regularTeaseRadioButton.getId() && checked != flashTeaseRadioButton.getId() && !autoUpdatingRadioGroup){
+					updatingRadioGroupFromIdText = true;
+					teaseTypeRadioGroup.check(regularTeaseRadioButton.getId());
+					updatingRadioGroupFromIdText = false;
+				}
+				if(!updatingIdTextFromUrlText){
+					updatingUrlTextFromIdText = true;
+					updateUrlEditText();
+				}
+			}
+		});
+		downloadButton.setOnClickListener(this);
+	}
+
+	public void onCheckedChanged(RadioGroup group, int checkedId){
+		if(group.equals(teaseTypeRadioGroup)){
+			if(!autoUpdatingRadioGroup){
+				if(checkedId == regularTeaseRadioButton.getId()){
+					urlParts[0] = regualrTeaseStart;
+					updateUrlEditText();
+				}else if(checkedId == flashTeaseRadioButton.getId()){
+					urlParts[0] = flashTeaseStart;
+					updateUrlEditText();
+				}
+			}
+		}
+	}
+
+	private void updateUrlEditText(){
+		if(updatingRadioGroupFromIdText) return;
+		String url = urlParts[0] + urlParts[1];
+		if(!urlEditText.getText().toString().equals(url)){
+			autoUpdatingUrlText = true;
+			urlEditText.setText(url);
+		}
+	}
+
+	public boolean onKey(View v, int keyCode, KeyEvent event){
+		if(v.equals(urlEditText)){
+			if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER){
+				startDownload();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void onClick(View v){
+		if(v.equals(downloadButton)) startDownload();
 	}
 
 	private void newline(String string){
@@ -95,14 +189,14 @@ public class DownloadActivity extends AppCompatActivity{
 		outputScrollView.fullScroll(ScrollView.FOCUS_DOWN);
 	}
 
-	public void startDownload(View v){
-		if(button.getText().toString().equals(getString(R.string.download))){
+	private void startDownload(){
+		if(downloadButton.getText().toString().equals(getString(R.string.download))){
 			if(docsGet != null) docsGet.cancel(true);
 			String url = urlEditText.getText().toString().trim();
 			Pattern pattern = Pattern.compile("^https?://milovana\\.com/webteases/show(flash|tease)\\.php\\?id=(\\d+)$");
 			Matcher matcher = pattern.matcher(url);
 			if(matcher.find()){
-				button.setText(R.string.cancel);
+				downloadButton.setText(R.string.cancel);
 				cancelled = false;
 				outputTextView.setText(R.string.getting_source);
 				if(matcher.group(1).equals("flash")){
@@ -123,7 +217,7 @@ public class DownloadActivity extends AppCompatActivity{
 			for(ResourceDownloader rd : rds){
 				rd.cancel(true);
 			}
-			button.setText(R.string.download);
+			downloadButton.setText(R.string.download);
 		}
 	}
 
@@ -437,7 +531,7 @@ public class DownloadActivity extends AppCompatActivity{
 		try{
 			fos = new FileOutputStream(new File(MainActivity.TEASES_DIR + parseLocation(teaseTitle) + ".xml"));
 			TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc), new StreamResult(fos));
-			button.callOnClick();
+			downloadButton.callOnClick();
 			newline("Done");
 		}catch(TransformerException | TransformerFactoryConfigurationError e){
 			e.printStackTrace();
@@ -553,7 +647,7 @@ public class DownloadActivity extends AppCompatActivity{
 					docsGet = new ASyncGet(docs, url, pageNum + 1);
 				}else makeTeaseXML(docs);
 			}catch(ClassCastException e){
-				button.callOnClick();
+				downloadButton.callOnClick();
 			}catch(CancellationException e){
 				newline("Cancelled");
 			}
@@ -563,7 +657,7 @@ public class DownloadActivity extends AppCompatActivity{
 				org.jsoup.nodes.Document teaseDoc = (org.jsoup.nodes.Document) value[1];
 				makeFlashXML(matcher, scriptDoc, teaseDoc);
 			}catch(ClassCastException e){
-				button.callOnClick();
+				downloadButton.callOnClick();
 			}catch(CancellationException e){
 				newline("Cancelled");
 			}
