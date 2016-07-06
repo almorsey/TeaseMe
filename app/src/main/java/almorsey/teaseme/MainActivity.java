@@ -474,6 +474,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
 	private void setPage(String pageID){
 		try{
+			Log.d(TAG, "setPage: " + pageID);
 			Element page = doc.getElementById(pageID);
 			audioPlayer.stop();
 			NodeList children = page.getChildNodes();
@@ -537,7 +538,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		return parts[0] * 60 * 60 * 1000 + parts[1] * 60 * 1000 + parts[2] * 1000;
 	}
 
-	private String processTarget(String target){
+	private String processTarget(String target){ //range(from:4,to:17)
 		Matcher matcher = multiplePagesPattern.matcher(target);
 		if(matcher.find()){
 			long start = Long.parseLong(matcher.group(2));
@@ -567,6 +568,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
 				if(!processedTarget.equals("")) allowed.add(processedTarget);
 			}
 			return allowed.get(rand.nextInt(allowed.size()));
+		}else if(target.startsWith("range")){
+			target = target.substring(target.indexOf('(') + 1, target.length() - 1);
+			String[] parts = target.split(",");
+			String fromS = parts[0].substring(parts[0].indexOf(':') + 1);
+			String toS = parts[1].substring(parts[1].indexOf(':') + 1);
+			int from = Integer.parseInt(fromS);
+			int to = Integer.parseInt(toS);
+			return String.valueOf(rand.nextInt(to) + from);
 		}
 		return target;
 	}
