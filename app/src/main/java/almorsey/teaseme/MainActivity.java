@@ -1,10 +1,12 @@
 package almorsey.teaseme;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -12,6 +14,8 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -74,6 +78,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 	static String TEASES_DIR;
 	static Document data;
 	static File dataFile;
+	private final int STORAGE_PERMISSION = 0;
 
 	/**
 	 * doc = xml document of tease
@@ -177,9 +182,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
 	}
 
 	protected void onStop(){
-		Element lastTeaseE = (Element) data.getElementsByTagName(getString(R.string.root_misc_lastTease)).item(0);
-		lastTeaseE.setTextContent(teaseButton.getText().toString());
-		saveDocument(data, dataFile);
+		if(data != null){
+			Element lastTeaseE = (Element) data.getElementsByTagName(getString(R.string.root_misc_lastTease)).item(0);
+			lastTeaseE.setTextContent(teaseButton.getText().toString());
+			saveDocument(data, dataFile);
+		}
 		super.onStop();
 	}
 
@@ -189,11 +196,16 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		setContentView(R.layout.activity_main);
 		initVars();
 		setupDataFile();
-		if(data != null) startupActions();
-		else setContentView(noStorageLayout);
+		if(data == null) setContentView(noStorageLayout);
 	}
 
 	private void startupActions(){
+		//if(imageView == null){
+		setContentView(R.layout.activity_main);
+		initVars();
+		makeFullscreen();
+		//}
+
 		TEASES_DIR = data.getElementsByTagName(getString(R.string.root_settings_teasesDirectory)).item(0).getTextContent();
 		File teasesDir = new File(TEASES_DIR);
 		boolean exists = teasesDir.exists();
@@ -274,96 +286,110 @@ public class MainActivity extends Activity implements View.OnClickListener{
 	}
 
 	private void setupDataFile(){
-		String MAIN_DIR = Environment.getExternalStorageDirectory().toString() + "/Android/data/" + getApplication().getPackageName() + "/";
-		File mainDir = new File(MAIN_DIR);
-		boolean exists = mainDir.exists();
-		if(!exists) exists = mainDir.mkdirs();
-		if(!exists) Toast.makeText(this, "Could not create data file. Please check storage permissions for this app", Toast.LENGTH_LONG).show();
-		dataFile = new File(MAIN_DIR + "data.xml");
-		if(!dataFile.exists()) try{
-			data = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-			Element root = data.createElement("Root");
-			data.appendChild(root);
-			saveDocument(data, dataFile);
-		}catch(ParserConfigurationException e){
-			Log.e(TAG, "onCreate: ", e);
-		}
-		data = openDocument(dataFile.toString());
-		if(data != null){
-			Element root = (Element) data.getElementsByTagName(getString(R.string.root)).item(0);
-			if(root.getElementsByTagName(getString(R.string.root_saves)).getLength() == 0){
-				Element saves = data.createElement(getString(R.string.root_saves));
-				root.appendChild(saves);
+		if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION);
+		else{
+			String MAIN_DIR = Environment.getExternalStorageDirectory().toString() + "/Android/data/" + getApplication().getPackageName() + "/";
+			File mainDir = new File(MAIN_DIR);
+			boolean exists = mainDir.exists();
+			if(!exists) exists = mainDir.mkdirs();
+			if(!exists) Toast.makeText(this, "Could not create data file. Please check storage permissions for this app", Toast.LENGTH_LONG).show();
+			dataFile = new File(MAIN_DIR + "data.xml");
+			if(!dataFile.exists()) try{
+				data = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+				Element root = data.createElement("Root");
+				data.appendChild(root);
+				saveDocument(data, dataFile);
+			}catch(ParserConfigurationException e){
+				Log.e(TAG, "onCreate: ", e);
 			}
-			if(root.getElementsByTagName(getString(R.string.root_settings)).getLength() == 0){
-				Element settings = data.createElement(getString(R.string.root_settings));
-				root.appendChild(settings);
-			}
-			Element settings = (Element) root.getElementsByTagName(getString(R.string.root_settings)).item(0);
-			{
-				if(settings.getElementsByTagName(getString(R.string.root_settings_teasesDirectory)).getLength() == 0){
-					Element teaseDir = data.createElement(getString(R.string.root_settings_teasesDirectory));
-					teaseDir.setTextContent(Environment.getExternalStorageDirectory().toString() + "/Teases/");
-					settings.appendChild(teaseDir);
+			data = openDocument(dataFile.toString());
+			if(data != null){
+				Element root = (Element) data.getElementsByTagName(getString(R.string.root)).item(0);
+				if(root.getElementsByTagName(getString(R.string.root_saves)).getLength() == 0){
+					Element saves = data.createElement(getString(R.string.root_saves));
+					root.appendChild(saves);
 				}
-				if(settings.getElementsByTagName(getString(R.string.root_settings_endearOnStartup)).getLength() == 0){
-					Element eos = data.createElement(getString(R.string.root_settings_endearOnStartup));
-					eos.setAttribute("value", "true");
-					settings.appendChild(eos);
+				if(root.getElementsByTagName(getString(R.string.root_settings)).getLength() == 0){
+					Element settings = data.createElement(getString(R.string.root_settings));
+					root.appendChild(settings);
 				}
-				if(settings.getElementsByTagName(getString(R.string.root_settings_homePagePicture)).getLength() == 0){
-					Element hpp = data.createElement(getString(R.string.root_settings_homePagePicture));
-					hpp.setAttribute("value", "true");
-					settings.appendChild(hpp);
-				}
-				if(settings.getElementsByTagName(getString(R.string.root_settings_rememberLastTease)).getLength() == 0){
-					Element rlt = data.createElement(getString(R.string.root_settings_rememberLastTease));
-					rlt.setAttribute("value", "true");
-					settings.appendChild(rlt);
-				}
-				if(settings.getElementsByTagName(getString(R.string.root_settings_cheats)).getLength() == 0){
-					Element cheats = data.createElement(getString(R.string.root_settings_cheats));
-					cheats.setAttribute("value", "true");
-					settings.appendChild(cheats);
-				}
-				Element cheats = (Element) data.getElementsByTagName(getString(R.string.root_settings_cheats)).item(0);
+				Element settings = (Element) root.getElementsByTagName(getString(R.string.root_settings)).item(0);
 				{
-					if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_pageID)).getLength() == 0){
-						Element pid = data.createElement(getString(R.string.root_settings_cheats_pageID));
-						pid.setAttribute("value", "true");
-						cheats.appendChild(pid);
+					if(settings.getElementsByTagName(getString(R.string.root_settings_teasesDirectory)).getLength() == 0){
+						Element teaseDir = data.createElement(getString(R.string.root_settings_teasesDirectory));
+						teaseDir.setTextContent(Environment.getExternalStorageDirectory().toString() + "/Teases/");
+						settings.appendChild(teaseDir);
 					}
-					if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_pauseTimer)).getLength() == 0){
-						Element pt = data.createElement(getString(R.string.root_settings_cheats_pauseTimer));
-						pt.setAttribute("value", "true");
-						cheats.appendChild(pt);
+					if(settings.getElementsByTagName(getString(R.string.root_settings_endearOnStartup)).getLength() == 0){
+						Element eos = data.createElement(getString(R.string.root_settings_endearOnStartup));
+						eos.setAttribute("value", "true");
+						settings.appendChild(eos);
 					}
-					if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_skipTimer)).getLength() == 0){
-						Element st = data.createElement(getString(R.string.root_settings_cheats_skipTimer));
-						st.setAttribute("value", "true");
-						cheats.appendChild(st);
+					if(settings.getElementsByTagName(getString(R.string.root_settings_homePagePicture)).getLength() == 0){
+						Element hpp = data.createElement(getString(R.string.root_settings_homePagePicture));
+						hpp.setAttribute("value", "true");
+						settings.appendChild(hpp);
 					}
-					if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_removeSave)).getLength() == 0){
-						Element rs = data.createElement(getString(R.string.root_settings_cheats_removeSave));
-						rs.setAttribute("value", "true");
-						cheats.appendChild(rs);
+					if(settings.getElementsByTagName(getString(R.string.root_settings_rememberLastTease)).getLength() == 0){
+						Element rlt = data.createElement(getString(R.string.root_settings_rememberLastTease));
+						rlt.setAttribute("value", "true");
+						settings.appendChild(rlt);
 					}
-					if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_prevPage)).getLength() == 0){
-						Element pp = data.createElement(getString(R.string.root_settings_cheats_prevPage));
-						pp.setAttribute("value", "true");
-						cheats.appendChild(pp);
+					if(settings.getElementsByTagName(getString(R.string.root_settings_cheats)).getLength() == 0){
+						Element cheats = data.createElement(getString(R.string.root_settings_cheats));
+						cheats.setAttribute("value", "true");
+						settings.appendChild(cheats);
+					}
+					Element cheats = (Element) data.getElementsByTagName(getString(R.string.root_settings_cheats)).item(0);
+					{
+						if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_pageID)).getLength() == 0){
+							Element pid = data.createElement(getString(R.string.root_settings_cheats_pageID));
+							pid.setAttribute("value", "true");
+							cheats.appendChild(pid);
+						}
+						if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_pauseTimer)).getLength() == 0){
+							Element pt = data.createElement(getString(R.string.root_settings_cheats_pauseTimer));
+							pt.setAttribute("value", "true");
+							cheats.appendChild(pt);
+						}
+						if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_skipTimer)).getLength() == 0){
+							Element st = data.createElement(getString(R.string.root_settings_cheats_skipTimer));
+							st.setAttribute("value", "true");
+							cheats.appendChild(st);
+						}
+						if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_removeSave)).getLength() == 0){
+							Element rs = data.createElement(getString(R.string.root_settings_cheats_removeSave));
+							rs.setAttribute("value", "true");
+							cheats.appendChild(rs);
+						}
+						if(cheats.getElementsByTagName(getString(R.string.root_settings_cheats_prevPage)).getLength() == 0){
+							Element pp = data.createElement(getString(R.string.root_settings_cheats_prevPage));
+							pp.setAttribute("value", "true");
+							cheats.appendChild(pp);
+						}
 					}
 				}
+				if(root.getElementsByTagName(getString(R.string.root_misc)).getLength() == 0){
+					Element misc = data.createElement(getString(R.string.root_misc));
+					root.appendChild(misc);
+				}
+				Element misc = (Element) data.getElementsByTagName(getString(R.string.root_misc)).item(0);
+				if(misc.getElementsByTagName(getString(R.string.root_misc_lastTease)).getLength() == 0){
+					Element lastTease = data.createElement(getString(R.string.root_misc_lastTease));
+					lastTease.setTextContent("");
+					misc.appendChild(lastTease);
+				}
 			}
-			if(root.getElementsByTagName(getString(R.string.root_misc)).getLength() == 0){
-				Element misc = data.createElement(getString(R.string.root_misc));
-				root.appendChild(misc);
-			}
-			Element misc = (Element) data.getElementsByTagName(getString(R.string.root_misc)).item(0);
-			if(misc.getElementsByTagName(getString(R.string.root_misc_lastTease)).getLength() == 0){
-				Element lastTease = data.createElement(getString(R.string.root_misc_lastTease));
-				lastTease.setTextContent("");
-				misc.appendChild(lastTease);
+			startupActions();
+		}
+	}
+
+	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
+		switch(requestCode){
+			case STORAGE_PERMISSION:{
+				if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) setupDataFile();
+				return;
 			}
 		}
 	}
@@ -538,7 +564,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		return parts[0] * 60 * 60 * 1000 + parts[1] * 60 * 1000 + parts[2] * 1000;
 	}
 
-	private String processTarget(String target){ //range(from:4,to:17)
+	private String processTarget(String target){
 		Matcher matcher = multiplePagesPattern.matcher(target);
 		if(matcher.find()){
 			long start = Long.parseLong(matcher.group(2));
@@ -559,16 +585,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
 						String id = attrs.getNamedItem("id").getNodeValue();
 						if(id.equals(matcher.group(1) + num)){
 							Node ifNotSetNode = attrs.getNamedItem("if-not-set");
-							if(ifNotSetNode != null){
-								if(set.contains(ifNotSetNode.getNodeValue())) processedTarget = id;
-							}
+							if(ifNotSetNode != null) if(set.contains(ifNotSetNode.getNodeValue())) processedTarget = id;
 						}
 					}
 				}
 				if(!processedTarget.equals("")) allowed.add(processedTarget);
 			}
 			return allowed.get(rand.nextInt(allowed.size()));
-		}else if(target.startsWith("range")){
+		}else if(target.startsWith("range") && target.contains("from") && target.contains("to")){
 			target = target.substring(target.indexOf('(') + 1, target.length() - 1);
 			String[] parts = target.split(",");
 			String fromS = parts[0].substring(parts[0].indexOf(':') + 1);
@@ -636,6 +660,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 						public void onClick(View v){
 							teaseButton.setText(fileButton.getText());
 							dialog.dismiss();
+							makeFullscreen();
 						}
 					});
 					fileButton.setOnLongClickListener(new View.OnLongClickListener(){
@@ -685,6 +710,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
 			});
 		}
 		dialog.show();
+		dialog.setOnCancelListener(new DialogInterface.OnCancelListener(){
+			public void onCancel(DialogInterface dialog){
+				makeFullscreen();
+			}
+		});
 	}
 
 	private void onSkipTimerButtonClicked(){
@@ -943,7 +973,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 	}
 
 	private void makeFullscreen(){
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		if(findViewById(android.R.id.content) == null) requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().getDecorView().setSystemUiVisibility(
 				View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View

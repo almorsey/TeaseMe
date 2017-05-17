@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+		<TextView
+			android:id="@+id/timerTextView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:clickable="true"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:textColor="#ffffff"
+			android:visibility="gone" />
+
+		<ScrollView
+			android:id="@+id/editTextScrollView"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_below="@id/timerTextView"
+			android:layout_above="@+id/buttons"
+			android:fadeScrollbars="false"
+			android:fillViewport="true"
+			android:paddingEnd="3dp"
+			android:paddingLeft="0dp"
+			android:paddingRight="3dp"
+			android:paddingStart="0dp">
+
+			<WebView
+				android:id="@+id/teaseWebView"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:autoLink="web|email"
+				android:clickable="false"
+				android:ems="10"
+				android:focusable="false"
+				android:inputType="textMultiLine"
+				android:linksClickable="true"
+				android:textColor="#ffffff"
+				android:textIsSelectable="true"
+				android:textSize="12sp" />
+		</ScrollView>
+
+		<FrameLayout
+			android:id="@+id/buttons"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true">
+
+			<LinearLayout
+				android:id="@+id/homeButtons"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<Button
+					android:id="@+id/teaseButton"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:clickable="true"
+					android:elevation="0dp"
+					android:ellipsize="end"
+					android:focusable="true"
+					android:maxLines="1"
+					android:text="@string/none"
+					android:textAllCaps="false"
+					android:textColor="#ffffff"
+					/>
+
+				<Button
+					android:id="@+id/settingsButton"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:clickable="true"
+					android:elevation="0dp"
+					android:ellipsize="end"
+					android:focusable="true"
+					android:maxLines="1"
+					android:text="@string/settings"
+					android:textAllCaps="false"
+					android:textColor="#ffffff"
+					/>
+
+				<Button
+					android:id="@+id/downloadButton"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:clickable="true"
+					android:elevation="0dp"
+					android:focusable="true"
+					android:maxLines="1"
+					android:text="@string/download"
+					android:textAllCaps="false"
+					android:textColor="#ffffff"
+					/>
+			</LinearLayout>
+
+			<ScrollView
+				android:id="@+id/buttonScrollView"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:fadeScrollbars="false">
+
+				<LinearLayout
+					android:id="@+id/buttonsLayout"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="vertical" />
+			</ScrollView>
+		</FrameLayout>
+</RelativeLayout>
