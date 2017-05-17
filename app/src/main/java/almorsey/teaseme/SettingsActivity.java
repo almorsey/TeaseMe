@@ -139,7 +139,7 @@ public class SettingsActivity extends AppCompatActivity
 	}
 
 	public void onSelectDirectory(@NonNull String path){
-		teasesDirEditText.setText(path);
+		teasesDirEditText.setText(path+"/");
 		mDialog.dismiss();
 	}
 

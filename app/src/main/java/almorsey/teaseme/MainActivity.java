@@ -14,6 +14,7 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -188,6 +189,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
 			saveDocument(data, dataFile);
 		}
 		super.onStop();
+	}
+
+	protected void onResume(){
+		super.onResume();
+		makeFullscreen();
 	}
 
 	protected void onCreate(Bundle savedInstanceState){
@@ -385,11 +391,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		}
 	}
 
-	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
+	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults){
 		switch(requestCode){
 			case STORAGE_PERMISSION:{
 				if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) setupDataFile();
-				return;
 			}
 		}
 	}
@@ -779,6 +784,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 			button.setOnClickListener(new View.OnClickListener(){
 				public void onClick(View v){
 					dialog.dismiss();
+					makeFullscreen();
 					imageView.callOnClick();
 					setPage(pageId);
 				}
@@ -792,6 +798,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		if(!current) scrollY = 0;
 		dialog.setOnCancelListener(new DialogInterface.OnCancelListener(){
 			public void onCancel(DialogInterface dialog){
+				makeFullscreen();
 				if(!timerTarget.equals("")) pauseTimerButton.callOnClick();
 			}
 		});
@@ -850,6 +857,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
 	private void onNewDocButtonClicked(){
 		if(doc != null && homeButtons.getVisibility() != EditText.GONE){ // Home to Tease
+			makeFullscreen();
 			homeButtons.setVisibility(View.GONE);
 			mediaDir = TEASES_DIR + doc.getElementsByTagName(getString(R.string.doc_mediaDirectory)).item(0).getTextContent() + "/";
 			Node n;
